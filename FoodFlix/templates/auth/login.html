@@ -1,24 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<form class="form-signin" method="post">
-  <h2 class="form-signin-heading">Please log in</h2>
-  <label for="username" class="sr-only">Username</label>
-  <input name="username" class="form-control" placeholder="Username" autofocus="" id="username" required>
-  <label for="password" class="sr-only">Password</label>
-  <input id="password" type="password" name="password"
-         class="form-control" placeholder="Password" required>
-  <br>
-  <input type="submit" value="Log In">
-</form>
-
-
-<div class="form-group">
-  <div class="aab controls col-md-4 "></div>
-  <div class="controls col-md-8 ">
-    <input type="submit" name="Signup" value="Signup" class="btn btn-primary btn btn-info" id="submit-id-signup" />
-    or <input type="button" name="Signup" value="Sign Up with Facebook" class="btn btn btn-primary" id="button-id-signup" />
-  </div>
+<div class="card card-container">
+  <form class="form-signin" method="post">
+    <h2 class="form-signin-heading">Please log in</h2>
+    <label for="username" class="sr-only">Username</label>
+    <input name="username" class="form-control" placeholder="Username" autofocus="" id="username" required>
+    <label for="password" class="sr-only">Password</label>
+    <input id="password" type="password" name="password"
+           class="form-control" placeholder="Password" required>
+    <br>
+    <input class="btn btn-danger center-block" type="submit" value="Log In">
+  </form>
 </div>
-
 {% endblock %}

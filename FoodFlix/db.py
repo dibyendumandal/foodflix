@@ -26,9 +26,12 @@ def init_db():
     db = get_db()
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
-    recipes = pd.read_csv('FoodFlix/static/recipe_info_dataset1.csv')
-    recipes.to_sql(name='recipes',con=db)
-
+    try:
+        recipes = pd.read_csv('FoodFlix/static/recipe_info_dataset1.csv')
+        recipes.to_sql(name='recipes',con=db)
+    except:
+        print('Table recipes already exists.')
+        
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
@@ -39,3 +42,7 @@ def init_db_command():
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+
+if __name__ == '__main__':
+    init_db()
+            

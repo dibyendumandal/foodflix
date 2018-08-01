@@ -39,7 +39,7 @@
             <div class="controls col-md-8 ">
               <input class="input-md textinput textInput form-control"
                      id="id_height" name="height" placeholder="Your Height"
-                     style="margin-bottom: 10px" type="text"
+                     style="margin-bottom: 10px" type="number"
                      {% if user['height'] is not none %} value="{{user['height']}}" {%endif%}required>
             </div>
           </div>
@@ -48,6 +48,7 @@
             <div class="controls col-md-8 ">
               <input class="input-md textinput textInput form-control"
                      id="id_weight" name="weight" placeholder="Your Weight"
+                     style="margin-bottom: 10px" type="number"
                      {% if user['weight'] is not none %} value="{{user['weight']}}" {%endif%}required>
             </div>
           </div>

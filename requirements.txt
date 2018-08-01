@@ -1,0 +1,15 @@
+Cython==0.28.4
+Flask==1.0.2
+Jinja2==2.10
+MarkupSafe==1.0
+Werkzeug==0.14.1
+certifi==2018.4.16
+click==6.7
+gunicorn==19.9.0
+itsdangerous==0.24
+numpy==1.15.0
+pandas==0.23.3
+python-dateutil==2.7.3
+pytz==2018.5
+six==1.11.0
+wheel==0.31.1

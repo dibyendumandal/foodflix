@@ -1,1 +1,2 @@
-web: gunicorn FoodFlix:FoodFlix
+web: gunicorn FoodFlix:app
+
