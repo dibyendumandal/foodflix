@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if not g.user %}
+<div class="bg"></div>
+<div class="jumbotron text-center">
+  <h1><font color="red">FoodFlix</font></h1>
+  <h4>Netflix for Food</h4>
+  <a href="{{ url_for('auth.register') }}" type="button" class="btn btn-danger">Join for Free</a>
+</div>
+{% else %}
+<div class="container">
+
+  <h1>
+    {% if request.path == "/favs" %}
+    My Favorites
+    {% elif request.path == "/browse" %}
+    Browse
+    {% elif request.path == "/recommender" %}
+    Recommender
+    {% endif %}
+    {% for keyword in keywords %}
+    <button class="btn btn-info btn-sm">{{keyword}}</button>
+    {% endfor %}
+  </h1>
+  
+  {% if request.path == "/recommender" and g.user['is_config'] == 0 %}
+  <div class="container">
+    <div class="jumbotron text-center">
+      <h3>Configure your user first</h3>
+      <a href="{{ url_for('blog.profile') }}" type="button" class="btn btn-danger">Go to Profile</a>
+    </div>
+  </div>
+  {% else %}
+  <table class="table table-striped">
+    <tbody>
+      {% for recipe in recipes %}
+      <tr>
+        <a class="anchor" id="{{recipe['recipe_id']}}"></a>
+        <div class="card">
+          <div class="card-body">
+            <a class="card-title" href="{{ recipe['recipe_url'] }}" target="_blank">{{ recipe['recipe_name'] }}</a>
+            <h6 class="card-subtitle mb-2 text-muted">{{ recipe['overall_rating']|round(1)}} stars ({{ recipe['review_count'] }})</h6>
+            <h4 class="card-subtitle">
+              {% if recipe['cook_time'] is not none %}
+              <span class="far fa-clock">  {{ recipe['cook_time'] }}</span>
+              {% endif %}
+              {% if recipe['calorie_count'] is not none %}
+              <span class="fas fa-cookie-bite">  {{ recipe['calorie_count'] }}</span>
+              {% endif %}
+            </h4>
+            <p class="card-text">{{ recipe['ingredients'] }}</p>
+            <form method="post">
+              {%if recipe['recipe_id']|string in liked %}
+              <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-danger btn-lg" value="{{ recipe['recipe_id'] }}">
+                <span class="far fa-heart"></span>
+              </button>
+              {%else%}
+              <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-default btn-lg" value="{{ recipe['recipe_id'] }}">
+                <span class="far fa-heart"></span>
+              </button>
+              {%endif%}
+            </form>
+          </div>
+        </div>
+      </tr>
+      {% if not loop.last %}
+      <hr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  
+</div>
+{% endif %}
+{% endblock %}

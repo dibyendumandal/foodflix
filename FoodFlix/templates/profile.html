@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+  <div id="signupbox" style=" margin-top:50px" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+    <div class="panel panel-danger">
+      <div class="panel-heading">
+        <div class="panel-title">User profile for {{g.user['username']}}</div>
+      </div>
+      <div class="panel-body">
+        <form  class="form-horizontal" method="post" >
+          <div id="div_id_fullname" class="form-group required">
+            <label for="id_fullname" class="control-label col-md-4  
+                                            requiredField"> Name<span class="asteriskField"></span></label>
+            <div class="controls col-md-8 ">
+              <input class="input-md  textinput textInput form-control"
+                     id="id_fullname" maxlength="30" name="fullname"
+                     placeholder="Your Full Name" style="margin-bottom: 10px"
+                     type="text" value="{{user['fullname']}}">
+            </div>
+          </div>
+          <div id="div_id_gender" class="form-group required">
+            <label for="id_gender"  class="control-label col-md-4" required> Gender<span class="asteriskField">*</span> </label>
+            <div class="controls col-md-8 "  style="margin-bottom: 10px">
+              <label class="radio-inline">
+                <input type="radio" name="gender"
+                       id="id_gender_1" value="M"
+                       style="margin-bottom: 10px"
+                       {% if user['gender'] == 'M' %} checked {% endif %}>Male</label>
+              <label class="radio-inline">
+                <input type="radio" name="gender"
+                       id="id_gender_2" value="F"
+                       {% if user['gender'] == 'F' %} checked {% endif %}>Female</label>
+            </div>
+          </div>
+          <div id="height" class="form-group required">
+            <label for="id_height" class="control-label col-md-4  requiredField">Height<span class="asteriskField">*</span> </label>
+            <div class="controls col-md-8 ">
+              <input class="input-md textinput textInput form-control"
+                     id="id_height" name="height" placeholder="Your Height"
+                     style="margin-bottom: 10px" type="text"
+                     {% if user['height'] is not none %} value="{{user['height']}}" {%endif%}required>
+            </div>
+          </div>
+          <div id="weight" class="form-group required">
+            <label for="id_weight" class="control-label col-md-4  requiredField">Weight<span class="asteriskField">*</span> </label>
+            <div class="controls col-md-8 ">
+              <input class="input-md textinput textInput form-control"
+                     id="id_weight" name="weight" placeholder="Your Weight"
+                     {% if user['weight'] is not none %} value="{{user['weight']}}" {%endif%}required>
+            </div>
+          </div>
+          <div id="restrictions" class="form-group">
+            <label for="id_restrictions" class="control-label col-md-4  requiredField">Food Restrictions<span class="asteriskField"></span> </label>
+            <div class="controls col-md-8 ">
+              <input class="input-md textinput textInput form-control"
+                     id="id_restrictions" name="restrictions" placeholder="Your Food Restrictions"
+                     style="margin-bottom: 10px" type="text" value="{{user['restrictions']}}">
+            </div>
+          </div>
+          <input class="btn btn-primary center-block" type="submit" value="Save">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
