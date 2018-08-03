@@ -24,7 +24,7 @@ class FoodFlixEngine(object):
         # Read in cleaned data from CSV
         data = pd.read_csv('FoodFlix/static/clean_ingredients.csv',
                            header=0)
-        data.set_index('recipe_name', inplace=True)
+        data.set_index('recipe_id', inplace=True)
         ingredients = list(data['ingredients'])
 
         # Build the TF-IDF Model using 1, 2, and 3-grams on words
@@ -50,7 +50,6 @@ class FoodFlixEngine(object):
         # Store this to a SQL database
         db = get_db()
 
-        try:
-            recommendations.to_sql(name='recommendations',con=db)
-        except:
-            print('Table \'recommendations\' already exists.')
+        # TODO kjb: maybe do this without replacement...
+        recommendations.to_sql(name='recommendations',con=db,
+                               if_exists='replace')

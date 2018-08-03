@@ -147,7 +147,6 @@ def recommender():
         'SELECT liked '
         'FROM user '
     ).fetchone()
-    print(liked_query)
 
     # Pull information on what the user likes to use in the engine
     try:
@@ -166,8 +165,27 @@ def recommender():
     engine = FoodFlixEngine()
     engine.train()
 
-
+    # Pull some recipe recommendations
     recipes = []
+
+    for recipe in liked:
+        rec_query = db.execute(
+            'SELECT * '
+            'FROM recommendations '
+            'WHERE recipe_id == ?',
+            (recipe,)
+        ).fetchone()
+
+        for k in rec_query:
+            recipe_query = db.execute(
+                'SELECT * '
+                'FROM recipes '
+                'WHERE recipe_id == ?',
+                (k,)
+            ).fetchone()
+
+        recipes.append(recipe_query)
+
     return render_template("browse.html",recipes=recipes)
 
 @bp.route('/create', methods=('GET', 'POST'))
