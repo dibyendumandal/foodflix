@@ -168,6 +168,12 @@ def recommender():
     # Pull some recipe recommendations
     recipes = []
 
+    # Iterate over all of the recipes that you have liked
+
+    # TODO kjb: instead of looking at all, combine the results about what is
+    # liked to come up with a better prediction instead of looking at them
+    # separately.
+    
     for recipe in liked:
         rec_query = db.execute(
             'SELECT * '
@@ -184,7 +190,7 @@ def recommender():
                 (k,)
             ).fetchone()
 
-        recipes.append(recipe_query)
+            recipes.append(recipe_query)
 
     return render_template("browse.html",recipes=recipes)
 
