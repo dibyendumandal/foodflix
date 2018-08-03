@@ -12,26 +12,26 @@ def get_db():
             detect_types=sqlite3.PARSE_DECLTYPES
         )
         g.db.row_factory = sqlite3.Row
-        
+
     return g.db
-    
-    
+
+
 def close_db(e=None):
     db = g.pop('db', None)
-    
+
     if db is not None:
         db.close()
-            
+
 def init_db():
     db = get_db()
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
     try:
-        recipes = pd.read_csv('FoodFlix/static/recipe_info_dataset1.csv')
+        recipes = pd.read_csv('FoodFlix/static/recipe_info_dataset2.csv')
         recipes.to_sql(name='recipes',con=db)
     except:
         print('Table recipes already exists.')
-        
+
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
@@ -45,4 +45,3 @@ def init_app(app):
 
 if __name__ == '__main__':
     init_db()
-            
