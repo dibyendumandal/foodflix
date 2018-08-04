@@ -5,6 +5,7 @@ from werkzeug.exceptions import abort, BadRequestKeyError
 
 from FoodFlix.auth import login_required
 from FoodFlix.db import get_db
+from FoodFlix.engine import FoodFlixEngine
 
 bp = Blueprint('blog', __name__)
 
@@ -46,9 +47,9 @@ def browse():
         try:
             keywords = request.form['ingredients'].split(' ')
             query = '''
-            SELECT * 
-            FROM recipes 
-            WHERE review_count > "1 reviews" 
+            SELECT *
+            FROM recipes
+            WHERE review_count > "1 reviews"
             '''
             query_like = "AND ingredients LIKE '%%%s%%' "
             query += ''.join([query_like%keyword for keyword in keywords])
@@ -78,7 +79,7 @@ def favs():
     except:
         liked_str = ''
         liked = []
-    query = '''SELECT * 
+    query = '''SELECT *
     FROM recipes
     WHERE review_count > "1 reviews"
     AND recipe_id IN (%s)
@@ -136,9 +137,63 @@ def profile():
 @bp.route('/recommender', methods=('GET', 'POST'))
 @login_required
 def recommender():
+    MIN_LIKED_RECIPES = 3
+
+    # Connect to the database
+    db = get_db()
+
+    # Get data on what the user has liked so far
+    liked_query = db.execute(
+        'SELECT liked '
+        'FROM user '
+    ).fetchone()
+
+    # Pull information on what the user likes to use in the engine
+    try:
+        liked_str = liked_query['liked']
+        liked = liked_str.split(',')
+    except:
+        liked = []
+
+    if len(liked) < MIN_LIKED_RECIPES:
+        flash(f'You need to like at least {MIN_LIKED_RECIPES} recipes to get '
+              'recommendations', 'danger')
+        recipes = []
+        return render_template("browse.html",recipes=recipes)
+
+    # Build the food recommender engine and train
+    engine = FoodFlixEngine()
+    engine.train()
+
+    # Pull some recipe recommendations
     recipes = []
-    return render_template("browse.html",recipes=recipes)
+
+    # Iterate over all of the recipes that you have liked
+
+    # TODO kjb: instead of looking at all, combine the results about what is
+    # liked to come up with a better prediction instead of looking at them
+    # separately.
     
+    for recipe in liked:
+        rec_query = db.execute(
+            'SELECT * '
+            'FROM recommendations '
+            'WHERE recipe_id == ?',
+            (recipe,)
+        ).fetchone()
+
+        for k in rec_query:
+            recipe_query = db.execute(
+                'SELECT * '
+                'FROM recipes '
+                'WHERE recipe_id == ?',
+                (k,)
+            ).fetchone()
+
+            recipes.append(recipe_query)
+
+    return render_template("browse.html",recipes=recipes)
+
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
@@ -149,7 +204,7 @@ def create():
 
         if not title:
             error = 'Title is required.'
-            
+
         if error is not None:
             flash(error,'danger')
         else:
@@ -172,13 +227,13 @@ def get_post(id, check_author=True):
         ' WHERE p.id = ?',
         (id,)
     ).fetchone()
-    
+
     if post is None:
         abort(404, "Post id {0} doesn't exist.".format(id))
-        
+
     if check_author and post['author_id'] != g.user['id']:
         abort(403)
-            
+
     return post
 
 
@@ -186,15 +241,15 @@ def get_post(id, check_author=True):
 @login_required
 def update(id):
     post = get_post(id)
-    
+
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
         error = None
-        
+
         if not title:
             error = 'Title is required.'
-        
+
         if error is not None:
             flash(error,'danger')
         else:
@@ -208,7 +263,7 @@ def update(id):
         return redirect(url_for('blog.browse'))
 
     return render_template('blog/update.html', post=post)
-    
+
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
@@ -219,4 +274,3 @@ def delete(id):
     db.execute('DELETE FROM post WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('blog.browse'))
-
