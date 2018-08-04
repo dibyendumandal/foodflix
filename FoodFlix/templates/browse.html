@@ -19,6 +19,9 @@
     {% else %}
     Browse
     {% endif %}
+    {% for restriction in restrictions %}
+    <button class="btn btn-danger btn-sm">{{restriction}}</button>
+    {% endfor %}
     {% for keyword in keywords %}
     <button class="btn btn-info btn-sm">{{keyword}}</button>
     {% endfor %}

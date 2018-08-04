@@ -12,12 +12,6 @@ bp = Blueprint('blog', __name__)
 @bp.route('/', methods=('GET','POST'))
 def browse():
     db = get_db()
-    recipes = db.execute(
-        'SELECT * '
-        'FROM recipes '
-        'WHERE review_count > "1 reviews" '
-        'ORDER BY overall_rating DESC '
-    ).fetchall()
     liked_query = db.execute(
         'SELECT liked '
         'FROM user '
@@ -27,6 +21,21 @@ def browse():
         liked = liked_str.split(',')
     except:
         liked = []
+    restrictions = []
+    try:
+        restrictions = db.execute(
+            'SELECT restrictions '
+            'FROM user'
+        ).fetchone()['restrictions'].replace(',',' ').split(' ')
+    except:
+        restrictions = []
+    if restrictions == ['']:
+        restrictions = []
+    recipes_query = '''
+    SELECT *
+    FROM recipes
+    WHERE review_count > "1 reviews"
+    '''
     keywords =[]
     if request.method == 'POST':
         try:
@@ -46,19 +55,17 @@ def browse():
             print('No recipe_id key')
         try:
             keywords = request.form['ingredients'].split(' ')
-            query = '''
-            SELECT *
-            FROM recipes
-            WHERE review_count > "1 reviews"
-            '''
-            query_like = "AND ingredients LIKE '%%%s%%' "
-            query += ''.join([query_like%keyword for keyword in keywords])
-            query += "ORDER BY overall_rating DESC "
-            recipes = db.execute(query).fetchall()
         except BadRequestKeyError:
             print('No Ingredients key')
 
-    return render_template('browse.html', recipes=recipes, liked=liked, keywords=keywords)
+    query_like = "AND ingredients LIKE '%%%s%%' "
+    recipes_query += ''.join([query_like%keyword for keyword in keywords])
+    query_restr = "AND ingredients NOT LIKE '%%%s%%' "
+    recipes_query += ''.join([query_restr%restr for restr in restrictions])
+    recipes_query += "ORDER BY overall_rating DESC "
+    recipes = db.execute(recipes_query).fetchall()
+
+    return render_template('browse.html', recipes=recipes, liked=liked, keywords=keywords, restrictions=restrictions)
 
 
 @bp.route('/favs', methods=('GET','POST'))
