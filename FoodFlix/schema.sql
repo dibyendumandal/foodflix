@@ -14,7 +14,7 @@ CREATE TABLE user (
   bmi REAL,
   bmr REAL,
   cals_per_day REAL,
-  bmi_goal REAL,
+  goal TEXT DEFAULT 'maintain',
   activity TEXT DEFAULT 'active',
   restrictions TEXT DEFAULT '',
   is_config INTEGER NOT NULL DEFAULT 0,

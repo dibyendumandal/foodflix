@@ -23,7 +23,9 @@ def profile():
                            request.form['weight'],
                            request.form['feet'],
                            request.form['inches'])
-            cals_per_day = calc_calperday(request.form['activity'],bmr)
+            cals_per_day = calc_calperday(request.form['activity'],
+                                          request.form['goal'],
+                                          bmr)
         except Exception as err:
             print( type(err) )
             bmi = '--'
@@ -37,6 +39,8 @@ def profile():
             'weight=?, '
             'feet=?, '
             'inches=?, '
+            'activity=?, '
+            'goal=?, '
             'bmi=?, '
             'bmr=?, '
             'cals_per_day=?, '
@@ -48,6 +52,8 @@ def profile():
              request.form['weight'],
              request.form['feet'],
              request.form['inches'],
+             request.form['activity'],
+             request.form['goal'],
              bmi,
              bmr,
              cals_per_day,

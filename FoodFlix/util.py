@@ -4,7 +4,7 @@ Utilities
 
 import re
 
-def calc_calperday(activity,bmr):
+def calc_calperday(activity,goal,bmr):
     '''
     Calculate the amount of calories a person of certain
     activity level would lose.
@@ -15,11 +15,22 @@ def calc_calperday(activity,bmr):
     :param bmr: person's BMR
     :return: calories lost per day
     '''
+
+    # Activity correction factor for BMR
     activity_factor = {"sedentary":1.2,
                        "light":1.45,
                        "active":1.7,
                        "very":1.9}
-    return bmr*activity_factor[str(activity)]
+
+    # Calories addes of substructed from BMR
+    # given goal (1 pound = 500cals)
+    cals_goal = {"maintain":0,
+                 "lose":-500,
+                 "gain":500}
+
+    print('goal',cals_goal)
+    print('goal',goal)
+    return bmr*activity_factor[str(activity)] + cals_goal[str(goal)]
     
 
 def calc_bmr(gender,age,weight,feet,inches):
