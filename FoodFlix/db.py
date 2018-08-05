@@ -4,6 +4,65 @@ import click
 from flask import current_app, g
 from flask.cli import with_appcontext
 
+def get_restrictions(user_id):
+    db = get_db()
+    try:
+        restrictions = db.execute(
+            'SELECT restrictions '
+            'FROM user '
+            'WHERE id = ?',
+            (user_id,)
+        ).fetchone()['restrictions'].replace(',',' ').split(' ')
+    except:
+        restrictions = []
+    if restrictions == ['']:
+        restrictions = []
+    return restrictions
+
+
+def get_liked(user_id):
+    db = get_db()
+    try:
+        liked = db.execute(
+            'SELECT liked '
+            'FROM user '
+            'WHERE id = ?',
+            (user_id,)
+        ).fetchone()['liked'].split(',')
+    except:
+        liked = []
+    return liked
+
+
+def get_recipes(ingredients,restrictions,user_id):
+    db = get_db()
+    recipes_query = '''
+    SELECT *
+    FROM recipes
+    WHERE review_count > "1 reviews"
+    '''
+    query_like = "AND ingredients LIKE '%%%s%%' "
+    recipes_query += ''.join([query_like%ingr for ingr in ingredients])
+    query_restr = "AND ingredients NOT LIKE '%%%s%%' "
+    recipes_query += ''.join([query_restr%restr for restr in restrictions])
+    if user_id is not '':
+        try:
+            liked_str = db.execute(
+                'SELECT liked '
+                'FROM user '
+                'WHERE id = ?',
+                (user_id,)
+            ).fetchone()['liked']
+            recipes_query += 'AND recipe_id IN (%s) '%liked_str
+        except:
+            print('No user id')
+    recipes_query += 'ORDER BY overall_rating DESC '
+    try:
+        recipes = db.execute(recipes_query).fetchall()
+        return recipes
+    except:
+        return []
+    
 
 def get_db():
     if 'db' not in g:

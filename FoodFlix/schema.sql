@@ -8,7 +8,10 @@ CREATE TABLE user (
   fullname TEXT DEFAULT '',
   gender TEXT,
   weight REAL,
-  height REAL,
+  feet REAL,
+  inches REAL,
+  bmi REAL,
+  bmi_goal REAL,
   restrictions TEXT DEFAULT '',
   is_config INTEGER NOT NULL DEFAULT 0,
   liked TEXT

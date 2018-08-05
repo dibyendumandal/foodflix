@@ -34,22 +34,32 @@
                        {% if user['gender'] == 'F' %} checked {% endif %}>Female</label>
             </div>
           </div>
-          <div id="height" class="form-group required">
-            <label for="id_height" class="control-label col-md-4  requiredField">Height<span class="asteriskField">*</span> </label>
+          <div id="feet" class="form-group required">
+            <label for="id_feet" class="control-label col-md-4  requiredField">Height<span class="asteriskField">*</span> </label>
             <div class="controls col-md-8 ">
               <input class="input-md textinput textInput form-control"
-                     id="id_height" name="height" placeholder="Your Height"
+                     id="id_feet" name="feet" placeholder="Feet"
                      style="margin-bottom: 10px" type="number"
-                     {% if user['height'] is not none %} value="{{user['height']}}" {%endif%}required>
+                     {% if user['feet'] is not none %} value="{{user['feet']}}" {%endif%}required>
+              <input class="input-md textinput textInput form-control"
+                     id="id_inches" name="inches" placeholder="Inches"
+                     style="margin-bottom: 10px" type="number"
+                     {% if user['inches'] is not none %} value="{{user['inches']}}" {%endif%}required>
             </div>
           </div>
           <div id="weight" class="form-group required">
             <label for="id_weight" class="control-label col-md-4  requiredField">Weight<span class="asteriskField">*</span> </label>
             <div class="controls col-md-8 ">
               <input class="input-md textinput textInput form-control"
-                     id="id_weight" name="weight" placeholder="Your Weight"
+                     id="id_weight" name="weight" placeholder="Your Weight in pounds"
                      style="margin-bottom: 10px" type="number"
                      {% if user['weight'] is not none %} value="{{user['weight']}}" {%endif%}required>
+            </div>
+          </div>
+          <div id="BMI" class="form-group required">
+            <label for="id_BMI" class="control-label col-md-4  requiredField">Your BMI</label>
+            <div class="controls col-md-8 ">
+              <text> {{'%0.2f'| format(user['bmi']|float)}}</text>
             </div>
           </div>
           <div id="restrictions" class="form-group">

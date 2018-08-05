@@ -4,30 +4,56 @@ from flask import (
 from werkzeug.exceptions import abort, BadRequestKeyError
 
 from FoodFlix.auth import login_required
-from FoodFlix.db import get_db
+from FoodFlix.db import get_db, get_recipes, get_liked, get_restrictions
 from FoodFlix.engine import FoodFlixEngine
 
+from FoodFlix.util import calc_bmi
+
 bp = Blueprint('blog', __name__)
+
+@bp.route('/profile', methods=('GET', 'POST'))
+@login_required
+def profile():
+    db = get_db()
+    if request.method == 'POST':
+        db.execute(
+            'UPDATE user '
+            'SET fullname=?, '
+            'gender=?, '
+            'weight=?, '
+            'feet=?, '
+            'inches=?, '
+            'bmi=?, '
+            'restrictions=?, '
+            'is_config=?',
+            (request.form['fullname'],
+             request.form['gender'],
+             request.form['weight'],
+             request.form['feet'],
+             request.form['inches'],
+             calc_bmi(request.form['weight'],request.form['feet'],request.form['inches']),
+             request.form['restrictions'],
+             1)
+            )
+        db.commit()
+        flash('Saved!','success')
+        return redirect(url_for('blog.profile'))
+    else:
+        user_info = db.execute(
+            'SELECT * '
+            'FROM user '
+            'WHERE id = ?',
+            (session.get('user_id'),)
+        ).fetchone()
+        return render_template('profile.html', user=user_info)
+
 
 @bp.route('/', methods=('GET','POST'))
 def browse():
     db = get_db()
-    recipes = db.execute(
-        'SELECT * '
-        'FROM recipes '
-        'WHERE review_count > "1 reviews" '
-        'ORDER BY overall_rating DESC '
-    ).fetchall()
-    liked_query = db.execute(
-        'SELECT liked '
-        'FROM user '
-    ).fetchone()
-    try:
-        liked_str = liked_query['liked']
-        liked = liked_str.split(',')
-    except:
-        liked = []
-    keywords =[]
+    liked = get_liked( session.get('user_id') )
+    restrictions = get_restrictions( session.get('user_id') )
+    ingredients = []
     if request.method == 'POST':
         try:
             recipe_id = request.form['recipe_id']
@@ -45,94 +71,43 @@ def browse():
         except BadRequestKeyError:
             print('No recipe_id key')
         try:
-            keywords = request.form['ingredients'].split(' ')
-            query = '''
-            SELECT *
-            FROM recipes
-            WHERE review_count > "1 reviews"
-            '''
-            query_like = "AND ingredients LIKE '%%%s%%' "
-            query += ''.join([query_like%keyword for keyword in keywords])
-            query += "ORDER BY overall_rating DESC "
-            recipes = db.execute(query).fetchall()
+            ingredients = request.form['ingredients'].split(' ')
         except BadRequestKeyError:
             print('No Ingredients key')
 
-    return render_template('browse.html', recipes=recipes, liked=liked, keywords=keywords)
-
+    recipes = get_recipes(ingredients,restrictions,'')
+    return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
 
 @bp.route('/favs', methods=('GET','POST'))
 def favs():
     db = get_db()
-    liked_query = db.execute(
-        'SELECT liked '
-        'FROM user '
-    ).fetchone()
-    try:
-        liked_str = liked_query['liked']
-        liked = liked_str.split(',')
-    except:
-        liked = []
-    try:
-        liked_str = liked_query['liked']
-        liked = liked_str.split(',')
-    except:
-        liked_str = ''
-        liked = []
-    query = '''SELECT *
-    FROM recipes
-    WHERE review_count > "1 reviews"
-    AND recipe_id IN (%s)
-    ORDER BY overall_rating DESC
-    ''' %liked_str
-    recipes = db.execute(query).fetchall()
+    liked = get_liked( session.get('user_id') )
+    restrictions = get_restrictions( session.get('user_id') )
+    ingredients = []
     if request.method == 'POST':
-        recipe_id = request.form['recipe_id']
-        if str(recipe_id) in liked:
-            liked.remove( str(recipe_id) )
-        else:
-            liked.append( str(recipe_id) )
-        db.execute(
-            'UPDATE user '
-            'SET liked=?',
-            (','.join(liked),)
-        )
-        db.commit()
-        return redirect(url_for('blog.favs',_anchor=recipe_id))
-    return render_template('browse.html', recipes=recipes, liked=liked)
-
-
-@bp.route('/profile', methods=('GET', 'POST'))
-@login_required
-def profile():
-    db = get_db()
-    if request.method == 'POST':
-        db.execute(
-            'UPDATE user '
-            'SET fullname=?, '
-            'gender=?, '
-            'weight=?, '
-            'height=?, '
-            'restrictions=?, '
-            'is_config=?',
-            (request.form['fullname'],
-             request.form['gender'],
-             request.form['weight'],
-             request.form['height'],
-             request.form['restrictions'],
-             1)
+        try:
+            recipe_id = request.form['recipe_id']
+            if str(recipe_id) in liked:
+                liked.remove( str(recipe_id) )
+            else:
+                liked.append( str(recipe_id) )
+            db.execute(
+                'UPDATE user '
+                'SET liked=?',
+                (','.join(liked),)
             )
-        db.commit()
-        flash('Saved!','success')
-        return redirect(url_for('blog.profile'))
-    else:
-        user_info = db.execute(
-            'SELECT * '
-            'FROM user '
-            'WHERE id = ?',
-            (session.get('user_id'),)
-        ).fetchone()
-        return render_template('profile.html', user=user_info)
+            db.commit()
+            return redirect(url_for('blog.browse',_anchor=recipe_id))
+        except BadRequestKeyError:
+            print('No recipe_id key')
+        try:
+            ingredients = request.form['ingredients'].split(' ')
+        except BadRequestKeyError:
+            print('No Ingredients key')
+
+    recipes = get_recipes(ingredients,restrictions,session.get('user_id'))
+    return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
+
 
 @bp.route('/recommender', methods=('GET', 'POST'))
 @login_required

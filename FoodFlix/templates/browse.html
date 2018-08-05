@@ -9,20 +9,29 @@
   <a href="{{ url_for('auth.register') }}" type="button" class="btn btn-danger">Join for Free</a>
 </div>
 {% else %}
-<div class="container">
 
+<div class="sticky" id="myHeader">
   <h1>
     {% if request.path == "/favs" %}
-    My Favorites
+    <span class="fas fa-heart"></span> My Favorites
     {% elif request.path == "/recommender" %}
-    Recommender
+    <span class="far fa-lightbulb"></span> Recommender
     {% else %}
-    Browse
+    <span class="fas fa-globe"></span> Browse
     {% endif %}
+    {% for restriction in restrictions %}
+    <button class="btn btn-danger btn-sm">{{restriction}}</button>
+    {% endfor %}
     {% for keyword in keywords %}
     <button class="btn btn-info btn-sm">{{keyword}}</button>
     {% endfor %}
   </h1>
+</div>
+
+<br><br>
+<br><br>
+
+<div class="container">
   
   {% if request.path == "/recommender" and g.user['is_config'] == 0 %}
   <div class="container">
@@ -39,7 +48,7 @@
         <a class="anchor" id="{{recipe['recipe_id']}}"></a>
         <div class="card">
           <div class="card-body">
-            <a class="card-title" href="{{ recipe['recipe_url'] }}" target="_blank">{{ recipe['recipe_name'] }}</a>
+            <h3><a class="card-title" href="{{ recipe['recipe_url'] }}" target="_blank">{{ recipe['recipe_name'] }}</a></h3>
             <h6 class="card-subtitle mb-2 text-muted">{{ recipe['overall_rating']|round(1)}} stars ({{ recipe['review_count'] }})</h6>
             <h4 class="card-subtitle">
               {% if recipe['cook_time'] is not none %}
@@ -49,7 +58,13 @@
               <span class="fas fa-cookie-bite">  {{ recipe['calorie_count'] }}</span>
               {% endif %}
             </h4>
-            <p class="card-text">{{ recipe['ingredients'] }}</p>
+            <p class="card-text">
+              <ul>
+                {% for ingr in recipe['ingredients'].split("',")%}
+                <li>{{ingr.replace("'","").replace("[","").replace("]","")}}</li>
+                {% endfor %}
+              </ul>
+            </p>
             <form method="post">
               {%if recipe['recipe_id']|string in liked %}
               <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-danger btn-lg" value="{{ recipe['recipe_id'] }}">
