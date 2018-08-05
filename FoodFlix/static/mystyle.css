@@ -23,3 +23,12 @@ background-size: cover;
     top: -250px;
     visibility: hidden;
 }
+
+.sticky {
+    padding: 10px 16px;
+    position: fixed;
+    top: 50px;
+    width: 100%;
+    background: #555;
+    color: #f1f1f1;
+}

@@ -7,7 +7,46 @@ from FoodFlix.auth import login_required
 from FoodFlix.db import get_db, get_recipes, get_liked, get_restrictions
 from FoodFlix.engine import FoodFlixEngine
 
+from FoodFlix.util import calc_bmi
+
 bp = Blueprint('blog', __name__)
+
+@bp.route('/profile', methods=('GET', 'POST'))
+@login_required
+def profile():
+    db = get_db()
+    if request.method == 'POST':
+        db.execute(
+            'UPDATE user '
+            'SET fullname=?, '
+            'gender=?, '
+            'weight=?, '
+            'feet=?, '
+            'inches=?, '
+            'bmi=?, '
+            'restrictions=?, '
+            'is_config=?',
+            (request.form['fullname'],
+             request.form['gender'],
+             request.form['weight'],
+             request.form['feet'],
+             request.form['inches'],
+             calc_bmi(request.form['weight'],request.form['feet'],request.form['inches']),
+             request.form['restrictions'],
+             1)
+            )
+        db.commit()
+        flash('Saved!','success')
+        return redirect(url_for('blog.profile'))
+    else:
+        user_info = db.execute(
+            'SELECT * '
+            'FROM user '
+            'WHERE id = ?',
+            (session.get('user_id'),)
+        ).fetchone()
+        return render_template('profile.html', user=user_info)
+
 
 @bp.route('/', methods=('GET','POST'))
 def browse():
@@ -69,38 +108,6 @@ def favs():
     recipes = get_recipes(ingredients,restrictions,session.get('user_id'))
     return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
 
-
-@bp.route('/profile', methods=('GET', 'POST'))
-@login_required
-def profile():
-    db = get_db()
-    if request.method == 'POST':
-        db.execute(
-            'UPDATE user '
-            'SET fullname=?, '
-            'gender=?, '
-            'weight=?, '
-            'height=?, '
-            'restrictions=?, '
-            'is_config=?',
-            (request.form['fullname'],
-             request.form['gender'],
-             request.form['weight'],
-             request.form['height'],
-             request.form['restrictions'],
-             1)
-            )
-        db.commit()
-        flash('Saved!','success')
-        return redirect(url_for('blog.profile'))
-    else:
-        user_info = db.execute(
-            'SELECT * '
-            'FROM user '
-            'WHERE id = ?',
-            (session.get('user_id'),)
-        ).fetchone()
-        return render_template('profile.html', user=user_info)
 
 @bp.route('/recommender', methods=('GET', 'POST'))
 @login_required

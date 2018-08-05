@@ -34,17 +34,17 @@
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav navbar-left">
         {% if g.user %}
-        <li><a href="{{ url_for('blog.browse') }}"><span class="fas fa-globe"></span>Browse</a></li>
-        <li><a href="{{ url_for('blog.favs') }}"><span class="fas fa-heart"></span>My Favorites</a></li>
-        <li><a href="{{ url_for('blog.recommender') }}"><span class="far fa-lightbulb"></span>Recommend me!</a></li>
+        <li><a href="{{ url_for('blog.browse') }}"><span class="fas fa-globe"></span> Browse</a></li>
+        <li><a href="{{ url_for('blog.favs') }}"><span class="fas fa-heart"></span> My Favorites</a></li>
+        <li><a href="{{ url_for('blog.recommender') }}"><span class="far fa-lightbulb"></span> Recommend me!</a></li>
         {% endif %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if g.user %}
-        <li><a href="{{ url_for('blog.profile')}}"><span class="far fa-user"></span>{{ g.user['username'] }}</a>
-        <li><a href="{{ url_for('auth.logout') }}"><span class="fas fa-sign-out-alt"></span>Log Out</a></li>
+        <li><a href="{{ url_for('blog.profile')}}"><span class="far fa-user"></span> {{ g.user['username'] }}</a>
+        <li><a href="{{ url_for('auth.logout') }}"><span class="fas fa-sign-out-alt"></span> Log Out</a></li>
         {% else %}
-        <li><a href="{{ url_for('auth.login') }}" type="button" class="btn btn-default">Log In</a></li>
+        <li><a href="{{ url_for('auth.login') }}" type="button" class="btn btn-default"> Log In</a></li>
         {% endif %}
       </ul>
       {% if g.user %}
@@ -67,14 +67,12 @@
 <br><br>
 <br><br>
 
-<section class="container">
-  <header>
-    {% block header %}{% endblock %}
-  </header>
-  {% for category, message in get_flashed_messages(with_categories=true) %}
-  <div class="alert alert-{{category}} text-center" role="alert">{{ message }}</div>
-  {% endfor %}
-  {% block content %}{% endblock %}
-</section>
+<header>
+  {% block header %}{% endblock %}
+</header>
+{% for category, message in get_flashed_messages(with_categories=true) %}
+<div class="alert alert-{{category}} text-center" role="alert">{{ message }}</div>
+{% endfor %}
+{% block content %}{% endblock %}
 
 </body>

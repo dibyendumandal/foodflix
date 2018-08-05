@@ -57,10 +57,12 @@ def get_recipes(ingredients,restrictions,user_id):
         except:
             print('No user id')
     recipes_query += 'ORDER BY overall_rating DESC '
-    print('recipes_query',recipes_query)
-    recipes = db.execute(recipes_query).fetchall()
-    return recipes
-
+    try:
+        recipes = db.execute(recipes_query).fetchall()
+        return recipes
+    except:
+        return []
+    
 
 def get_db():
     if 'db' not in g:
