@@ -62,7 +62,7 @@ class FoodFlixEngine(object):
                                if_exists='replace')
         return
 
-    def predict(self, liked):
+    def predict(self, liked, cals_per_day):
         """
         Generate predictions
 
@@ -75,6 +75,8 @@ class FoodFlixEngine(object):
 
         # Create a container to hold recommended recipes
         recipes = []
+
+        cals_per_day /= 5 # 5 meals/day
 
         # Iterate over all of the recipes that a user has liked
         for recipe in liked:
@@ -90,10 +92,13 @@ class FoodFlixEngine(object):
                 recipe_query = db.execute(
                     'SELECT * '
                     'FROM recipes '
-                    'WHERE recipe_id == ?',
+                    'WHERE recipe_id == ? ',
                     (k,)
                 ).fetchone()
 
-                recipes.append(recipe_query)
+                # Recommend only recipes around your cal/week goal
+                cals = int(recipe_query['calorie_count'].replace('cals',''))
+                if cals > cals_per_day-100 and cals < cals_per_day+100:
+                    recipes.append(recipe_query)
 
         return recipes

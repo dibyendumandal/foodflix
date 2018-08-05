@@ -143,14 +143,14 @@ def recommender():
     db = get_db()
 
     # Get data on what the user has liked so far
-    liked_query = db.execute(
-        'SELECT liked '
+    user_query = db.execute(
+        'SELECT * '
         'FROM user '
     ).fetchone()
 
     # Pull information on what the user likes to use in the engine
     try:
-        liked_str = liked_query['liked']
+        liked_str = user_query['liked']
         liked = liked_str.split(',')
     except:
         liked = []
@@ -174,6 +174,6 @@ def recommender():
     engine.train(restrictions=restrictions)
 
     # Pull some recipe recommendations
-    recipes = engine.predict(liked=liked)
+    recipes = engine.predict(liked=liked, cals_per_day=user_query['cals_per_day'] )
 
     return render_template("browse.html",recipes=recipes)
