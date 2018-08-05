@@ -9,12 +9,14 @@ from FoodFlix.db import get_db
 
 class FoodFlixEngine(object):
 
-    def train(self, min_df=10, n_closest=5):
+    def train(self, restrictions, min_df=10, n_closest=3):
         """
         Fit the engine model to the given data
 
         Parameters
         ==========
+        restrictions : list
+            List containing strings of dietary restrictions.
         min_df : int
             Minimum number of occurences of a given ingredient in recipes.
         n_closest : int
@@ -25,6 +27,11 @@ class FoodFlixEngine(object):
         data = pd.read_csv('FoodFlix/static/clean_ingredients.csv',
                            header=0)
         data.set_index('recipe_id', inplace=True)
+
+        # Drop recipes that contain keywords from the dietary restrictions
+        data = data[~data['ingredients'].str.contains('|'.join(restrictions))]
+
+        # Put ingredients in a list to be passed to TF-IDF
         ingredients = list(data['ingredients'])
 
         # Build the TF-IDF Model using 1, 2, and 3-grams on words
@@ -53,3 +60,40 @@ class FoodFlixEngine(object):
         # TODO kjb: maybe do this without replacement...
         recommendations.to_sql(name='recommendations',con=db,
                                if_exists='replace')
+        return
+
+    def predict(self, liked):
+        """
+        Generate predictions
+
+        liked : list
+            List containing recipe_id for each recipe that a user liked.
+        """
+
+        # Connect to the database to grab user information
+        db = get_db()
+
+        # Create a container to hold recommended recipes
+        recipes = []
+
+        # Iterate over all of the recipes that a user has liked
+        for recipe in liked:
+            rec_query = db.execute(
+                'SELECT * '
+                'FROM recommendations '
+                'WHERE recipe_id == ?',
+                (recipe,)
+            ).fetchone()
+
+            # Skip the first one, since it's the item we are comparing to
+            for k in rec_query[1:]:
+                recipe_query = db.execute(
+                    'SELECT * '
+                    'FROM recipes '
+                    'WHERE recipe_id == ?',
+                    (k,)
+                ).fetchone()
+
+                recipes.append(recipe_query)
+
+        return recipes
