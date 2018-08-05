@@ -34,9 +34,18 @@
                        {% if user['gender'] == 'F' %} checked {% endif %}>Female</label>
             </div>
           </div>
+          <div id="age" class="form-group required">
+            <label for="id_age" class="control-label col-md-4  requiredField">Age<span class="asteriskField">*</span> </label>
+            <div class="controls col-md-4 ">
+              <input class="input-md textinput textInput form-control"
+                     id="id_age" name="age" placeholder="Your Age in pounds"
+                     style="margin-bottom: 10px" type="number"
+                     {% if user['age'] is not none %} value="{{'%i'| format(user['age']|int)}}" {%endif%}required>
+            </div>
+          </div>
           <div id="feet" class="form-group required">
             <label for="id_feet" class="control-label col-md-4  requiredField">Height<span class="asteriskField">*</span> </label>
-            <div class="controls col-md-8 ">
+            <div class="controls col-md-4 ">
               <input class="input-md textinput textInput form-control"
                      id="id_feet" name="feet" placeholder="Feet"
                      style="margin-bottom: 10px" type="number"
@@ -44,22 +53,69 @@
               <input class="input-md textinput textInput form-control"
                      id="id_inches" name="inches" placeholder="Inches"
                      style="margin-bottom: 10px" type="number"
-                     {% if user['inches'] is not none %} value="{{user['inches']}}" {%endif%}required>
+                     {% if user['inches'] is not none %} value="{{user['inches']}}" {%endif%}required></input>
             </div>
           </div>
           <div id="weight" class="form-group required">
             <label for="id_weight" class="control-label col-md-4  requiredField">Weight<span class="asteriskField">*</span> </label>
-            <div class="controls col-md-8 ">
+            <div class="controls col-md-4 ">
               <input class="input-md textinput textInput form-control"
                      id="id_weight" name="weight" placeholder="Your Weight in pounds"
                      style="margin-bottom: 10px" type="number"
                      {% if user['weight'] is not none %} value="{{user['weight']}}" {%endif%}required>
             </div>
           </div>
-          <div id="BMI" class="form-group required">
-            <label for="id_BMI" class="control-label col-md-4  requiredField">Your BMI</label>
+          <div id="activity" class="form-group required">
+            <label for="id_activity" class="control-label col-md-4  requiredField">Activity level<span class="asteriskField">*</span> </label>
             <div class="controls col-md-8 ">
-              <text> {{'%0.2f'| format(user['bmi']|float)}}</text>
+              <select name="activity" class="form-control" required>
+                <option value="sedentary"
+                        style="margin-bottom: 10px">Sedentary</option>
+                <option value="light"
+                        style="margin-bottom: 10px">Lightly Active (Execise 1-3 times/week)</option>
+                <option value="active"
+                        style="margin-bottom: 10px">Active (Execise 3-5 times/week)</option>
+                <option value="very"
+                        style="margin-bottom: 10px">Very Active (Execise 5-7 times/week)</option>
+              </select>
+            </div>
+          </div>
+          <div id="BMI" class="form-group required">
+            <label for="id_BMI" class="control-label col-md-4  requiredField">
+              <button type="button" data-toggle="popover" data-placement="top" title="Normal weight: (18.5-24.9)">
+                <span class="fas fa-question"></span>
+              </button>
+              Your BMI
+            </label>
+            <div class="controls col-md-4 ">
+              <input type="text" readonly class="input-md textinput textInput form-control"
+                     value="{{'%0.2f'| format(user['bmi']|float)}}"></input>
+            </div>
+          </div>
+          <div id="BMR" class="form-group required">
+            <label for="id_BMR" class="control-label col-md-4  requiredField">
+              <button type="button" data-toggle="popover" data-placement="top" title="Amount of energy expended per day at rest">
+                <span class="fas fa-question"></span>
+              </button>
+              Your BMR
+            </label>
+            <div class="controls col-md-4 ">
+              <input type="text" readonly class="input-md textinput textInput form-control"
+                     value="{{'%0.2f'| format(user['bmr']|float)}}"></input>
+              <small class="form-text text-muted">calories/day</small>
+            </div>
+          </div>
+          <div id="calsperday" class="form-group required">
+            <label for="id_calsperday" class="control-label col-md-4  requiredField">
+              <button type="button" data-toggle="popover" data-placement="top" title="Amount of energy expended per day given your activity level">
+                <span class="fas fa-question"></span>
+              </button>
+              Cals/day
+            </label>
+            <div class="controls col-md-4 ">
+              <input type="text" readonly class="input-md textinput textInput form-control"
+                     value="{{'%0.2f'| format( user['cals_per_day']|float ) }}"></input>
+              <small class="form-text text-muted">calories/day</small>
             </div>
           </div>
           <div id="restrictions" class="form-group">
@@ -76,4 +132,10 @@
     </div>
   </div>
 </div>
+
+<script>
+  $(function () {
+  $('[data-toggle="popover"]').popover()
+  })
+</script>
 {% endblock %}

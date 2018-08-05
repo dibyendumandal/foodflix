@@ -7,7 +7,7 @@ from FoodFlix.auth import login_required
 from FoodFlix.db import get_db, get_recipes, get_liked, get_restrictions
 from FoodFlix.engine import FoodFlixEngine
 
-from FoodFlix.util import calc_bmi
+from FoodFlix.util import calc_bmi, calc_bmr, calc_calperday
 
 bp = Blueprint('blog', __name__)
 
@@ -16,22 +16,41 @@ bp = Blueprint('blog', __name__)
 def profile():
     db = get_db()
     if request.method == 'POST':
+        try:
+            bmi = calc_bmi(request.form['weight'],request.form['feet'],request.form['inches'])
+            bmr = calc_bmr(request.form['gender'],
+                           request.form['age'],
+                           request.form['weight'],
+                           request.form['feet'],
+                           request.form['inches'])
+            cals_per_day = calc_calperday(request.form['activity'],bmr)
+        except Exception as err:
+            print( type(err) )
+            bmi = '--'
+            bmr = '--'
+            cals_per_day = '--'
         db.execute(
             'UPDATE user '
             'SET fullname=?, '
             'gender=?, '
+            'age=?, '
             'weight=?, '
             'feet=?, '
             'inches=?, '
             'bmi=?, '
+            'bmr=?, '
+            'cals_per_day=?, '
             'restrictions=?, '
             'is_config=?',
             (request.form['fullname'],
              request.form['gender'],
+             request.form['age'],
              request.form['weight'],
              request.form['feet'],
              request.form['inches'],
-             calc_bmi(request.form['weight'],request.form['feet'],request.form['inches']),
+             bmi,
+             bmr,
+             cals_per_day,
              request.form['restrictions'],
              1)
             )
