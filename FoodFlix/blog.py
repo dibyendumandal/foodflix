@@ -4,7 +4,7 @@ from flask import (
 from werkzeug.exceptions import abort, BadRequestKeyError
 
 from FoodFlix.auth import login_required
-from FoodFlix.db import get_db
+from FoodFlix.db import get_db, get_recipes, get_liked, get_restrictions
 from FoodFlix.engine import FoodFlixEngine
 
 bp = Blueprint('blog', __name__)
@@ -12,31 +12,9 @@ bp = Blueprint('blog', __name__)
 @bp.route('/', methods=('GET','POST'))
 def browse():
     db = get_db()
-    liked_query = db.execute(
-        'SELECT liked '
-        'FROM user '
-    ).fetchone()
-    try:
-        liked_str = liked_query['liked']
-        liked = liked_str.split(',')
-    except:
-        liked = []
-    restrictions = []
-    try:
-        restrictions = db.execute(
-            'SELECT restrictions '
-            'FROM user'
-        ).fetchone()['restrictions'].replace(',',' ').split(' ')
-    except:
-        restrictions = []
-    if restrictions == ['']:
-        restrictions = []
-    recipes_query = '''
-    SELECT *
-    FROM recipes
-    WHERE review_count > "1 reviews"
-    '''
-    keywords =[]
+    liked = get_liked( session.get('user_id') )
+    restrictions = get_restrictions( session.get('user_id') )
+    ingredients = []
     if request.method == 'POST':
         try:
             recipe_id = request.form['recipe_id']
@@ -54,59 +32,42 @@ def browse():
         except BadRequestKeyError:
             print('No recipe_id key')
         try:
-            keywords = request.form['ingredients'].split(' ')
+            ingredients = request.form['ingredients'].split(' ')
         except BadRequestKeyError:
             print('No Ingredients key')
 
-    query_like = "AND ingredients LIKE '%%%s%%' "
-    recipes_query += ''.join([query_like%keyword for keyword in keywords])
-    query_restr = "AND ingredients NOT LIKE '%%%s%%' "
-    recipes_query += ''.join([query_restr%restr for restr in restrictions])
-    recipes_query += "ORDER BY overall_rating DESC "
-    recipes = db.execute(recipes_query).fetchall()
-
-    return render_template('browse.html', recipes=recipes, liked=liked, keywords=keywords, restrictions=restrictions)
-
+    recipes = get_recipes(ingredients,restrictions,'')
+    return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
 
 @bp.route('/favs', methods=('GET','POST'))
 def favs():
     db = get_db()
-    liked_query = db.execute(
-        'SELECT liked '
-        'FROM user '
-    ).fetchone()
-    try:
-        liked_str = liked_query['liked']
-        liked = liked_str.split(',')
-    except:
-        liked = []
-    try:
-        liked_str = liked_query['liked']
-        liked = liked_str.split(',')
-    except:
-        liked_str = ''
-        liked = []
-    query = '''SELECT *
-    FROM recipes
-    WHERE review_count > "1 reviews"
-    AND recipe_id IN (%s)
-    ORDER BY overall_rating DESC
-    ''' %liked_str
-    recipes = db.execute(query).fetchall()
+    liked = get_liked( session.get('user_id') )
+    restrictions = get_restrictions( session.get('user_id') )
+    ingredients = []
     if request.method == 'POST':
-        recipe_id = request.form['recipe_id']
-        if str(recipe_id) in liked:
-            liked.remove( str(recipe_id) )
-        else:
-            liked.append( str(recipe_id) )
-        db.execute(
-            'UPDATE user '
-            'SET liked=?',
-            (','.join(liked),)
-        )
-        db.commit()
-        return redirect(url_for('blog.favs',_anchor=recipe_id))
-    return render_template('browse.html', recipes=recipes, liked=liked)
+        try:
+            recipe_id = request.form['recipe_id']
+            if str(recipe_id) in liked:
+                liked.remove( str(recipe_id) )
+            else:
+                liked.append( str(recipe_id) )
+            db.execute(
+                'UPDATE user '
+                'SET liked=?',
+                (','.join(liked),)
+            )
+            db.commit()
+            return redirect(url_for('blog.browse',_anchor=recipe_id))
+        except BadRequestKeyError:
+            print('No recipe_id key')
+        try:
+            ingredients = request.form['ingredients'].split(' ')
+        except BadRequestKeyError:
+            print('No Ingredients key')
+
+    recipes = get_recipes(ingredients,restrictions,session.get('user_id'))
+    return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
 
 
 @bp.route('/profile', methods=('GET', 'POST'))
