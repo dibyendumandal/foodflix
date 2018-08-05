@@ -32,7 +32,7 @@
 <br><br>
 
 <div class="container">
-  
+
   {% if request.path == "/recommender" and g.user['is_config'] == 0 %}
   <div class="container">
     <div class="jumbotron text-center">
@@ -48,7 +48,7 @@
         <a class="anchor" id="{{recipe['recipe_id']}}"></a>
         <div class="card">
           <div class="card-body">
-            <h3><a class="card-title" href="{{ recipe['recipe_url'] }}" target="_blank">{{ recipe['recipe_name'] }}</a></h3>
+            <h3><a class="card-title" href="{{ recipe['recipe_url'] }}" target="_blank">{{ recipe['recipe_name'].replace('-', ' ').title() }}</a></h3>
             <h6 class="card-subtitle mb-2 text-muted">{{ recipe['overall_rating']|round(1)}} stars ({{ recipe['review_count'] }})</h6>
             <h4 class="card-subtitle">
               {% if recipe['cook_time'] is not none %}
@@ -86,7 +86,7 @@
     </tbody>
   </table>
   {% endif %}
-  
+
 </div>
 {% endif %}
 {% endblock %}
