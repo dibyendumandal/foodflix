@@ -70,7 +70,9 @@
 <header>
   {% block header %}{% endblock %}
 </header>
+
 {% for category, message in get_flashed_messages(with_categories=true) %}
+<br><br><br>
 <div class="alert alert-{{category}} text-center" role="alert">{{ message }}</div>
 {% endfor %}
 {% block content %}{% endblock %}
