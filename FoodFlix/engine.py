@@ -60,3 +60,40 @@ class FoodFlixEngine(object):
         # TODO kjb: maybe do this without replacement...
         recommendations.to_sql(name='recommendations',con=db,
                                if_exists='replace')
+        return
+
+    def predict(self, liked):
+        """
+        Generate predictions
+
+        liked : list
+            List containing recipe_id for each recipe that a user liked.
+        """
+
+        # Connect to the database to grab user information
+        db = get_db()
+
+        # Create a container to hold recommended recipes
+        recipes = []
+
+        # Iterate over all of the recipes that a user has liked
+        for recipe in liked:
+            rec_query = db.execute(
+                'SELECT * '
+                'FROM recommendations '
+                'WHERE recipe_id == ?',
+                (recipe,)
+            ).fetchone()
+
+            # Skip the first one, since it's the item we are comparing to
+            for k in rec_query[1:]:
+                recipe_query = db.execute(
+                    'SELECT * '
+                    'FROM recipes '
+                    'WHERE recipe_id == ?',
+                    (k,)
+                ).fetchone()
+
+                recipes.append(recipe_query)
+
+        return recipes

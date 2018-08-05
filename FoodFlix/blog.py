@@ -174,32 +174,7 @@ def recommender():
     engine.train(restrictions=restrictions)
 
     # Pull some recipe recommendations
-    recipes = []
-
-    # Iterate over all of the recipes that you have liked
-
-    # TODO kjb: instead of looking at all, combine the results about what is
-    # liked to come up with a better prediction instead of looking at them
-    # separately.
-
-    for recipe in liked:
-        rec_query = db.execute(
-            'SELECT * '
-            'FROM recommendations '
-            'WHERE recipe_id == ?',
-            (recipe,)
-        ).fetchone()
-
-        # Skip the first one, since it's the item we are comparing to
-        for k in rec_query[1:]:
-            recipe_query = db.execute(
-                'SELECT * '
-                'FROM recipes '
-                'WHERE recipe_id == ?',
-                (k,)
-            ).fetchone()
-
-            recipes.append(recipe_query)
+    recipes = engine.predict(liked=liked)
 
     return render_template("browse.html",recipes=recipes)
 
