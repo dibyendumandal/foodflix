@@ -33,6 +33,19 @@ def get_liked(user_id):
         liked = []
     return liked
 
+def get_disliked(user_id):
+    db = get_db()
+    try:
+        disliked = db.execute(
+            'SELECT disliked '
+            'FROM user '
+            'WHERE id = ?',
+            (user_id,)
+        ).fetchone()['disliked'].split(',')
+    except:
+        disliked = []
+    return disliked
+
 
 def get_recipes(ingredients,restrictions,user_id):
     db = get_db()
@@ -62,7 +75,7 @@ def get_recipes(ingredients,restrictions,user_id):
         return recipes
     except:
         return []
-    
+
 
 def get_db():
     if 'db' not in g:
