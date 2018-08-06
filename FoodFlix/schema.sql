@@ -18,5 +18,6 @@ CREATE TABLE user (
   activity TEXT DEFAULT 'active',
   restrictions TEXT DEFAULT '',
   is_config INTEGER NOT NULL DEFAULT 0,
-  liked TEXT
+  liked TEXT,
+  disliked TEXT
 );

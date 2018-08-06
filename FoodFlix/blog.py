@@ -4,10 +4,12 @@ from flask import (
 from werkzeug.exceptions import abort, BadRequestKeyError
 
 from FoodFlix.auth import login_required
-from FoodFlix.db import get_db, get_recipes, get_liked, get_restrictions
+from FoodFlix.db import (get_db, get_recipes, get_liked, get_disliked,
+    get_restrictions)
 from FoodFlix.engine import FoodFlixEngine
-
 from FoodFlix.util import calc_bmi, calc_bmr, calc_calperday
+
+import re
 
 bp = Blueprint('blog', __name__)
 
@@ -76,39 +78,80 @@ def profile():
 @bp.route('/', methods=('GET','POST'))
 def browse():
     db = get_db()
+
     liked = get_liked( session.get('user_id') )
+    disliked = get_disliked( session.get('user_id') )
     restrictions = get_restrictions( session.get('user_id') )
+
     ingredients = []
+
     if request.method == 'POST':
         try:
-            recipe_id = request.form['recipe_id']
-            if str(recipe_id) in liked:
-                liked.remove( str(recipe_id) )
+            respose = request.form['recipe_id']
+            # Parse out the type of button pressed (like or dislike)
+            vote = re.search('[a-z]+', respose).group()
+
+            # Parse out the recipe id from the response
+            recipe_id = re.search('[0-9]+', respose).group()
+
+            if vote == 'like':
+                # Unlike if you click the button and it's already liked
+                if recipe_id in liked:
+                    liked.remove(recipe_id)
+                # Like the recipe
+                else:
+                    liked.append(recipe_id)
+
+                    # Un-dislike if it is disliked
+                    if recipe_id in disliked:
+                        disliked.remove(recipe_id)
             else:
-                liked.append( str(recipe_id) )
+                # Un-dislike if you click the button and it's already disliked
+                if recipe_id in disliked:
+                    disliked.remove(recipe_id)
+                # Dislike the recipe
+                else:
+                    disliked.append(recipe_id)
+
+                    # Unlike if it is liked
+                    if recipe_id in liked:
+                        liked.remove(recipe_id)
+
             db.execute(
                 'UPDATE user '
                 'SET liked=?',
                 (','.join(liked),)
             )
+            db.execute(
+                'UPDATE user '
+                'SET disliked=?',
+                (','.join(disliked),)
+            )
             db.commit()
             return redirect(url_for('blog.browse',_anchor=recipe_id))
+
         except BadRequestKeyError:
             print('No recipe_id key')
+
         try:
             ingredients = request.form['ingredients'].split(' ')
+
         except BadRequestKeyError:
             print('No Ingredients key')
 
     recipes = get_recipes(ingredients,restrictions,'')
-    return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
+    return render_template('browse.html', recipes=recipes, liked=liked,
+        disliked=disliked, keywords=ingredients, restrictions=restrictions)
 
 @bp.route('/favs', methods=('GET','POST'))
 def favs():
     db = get_db()
+
     liked = get_liked( session.get('user_id') )
     restrictions = get_restrictions( session.get('user_id') )
+
     ingredients = []
+    
     if request.method == 'POST':
         try:
             recipe_id = request.form['recipe_id']

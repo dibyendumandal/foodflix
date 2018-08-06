@@ -67,13 +67,28 @@
             </p>
             <form method="post">
               {%if recipe['recipe_id']|string in liked %}
-              <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-danger btn-lg" value="{{ recipe['recipe_id'] }}">
+              <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-success btn-lg" value="{{ 'like', recipe['recipe_id'] }}">
                 <span class="far fa-heart"></span>
+              </button>
+              <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-default btn-lg" value="{{ 'dislike', recipe['recipe_id'] }}">
+                <span class="far fa-thumbs-down"></span>
               </button>
               {%else%}
-              <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-default btn-lg" value="{{ recipe['recipe_id'] }}">
-                <span class="far fa-heart"></span>
-              </button>
+                  {%if recipe['recipe_id']|string in disliked %}
+                  <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-default btn-lg" value="{{ 'like', recipe['recipe_id'] }}">
+                    <span class="far fa-heart"></span>
+                    <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-danger btn-lg" value="{{ 'dislike', recipe['recipe_id'] }}">
+                      <span class="far fa-thumbs-down"></span>
+                    </button>
+                  </button>
+                  {%else%}
+                  <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-default btn-lg" value="{{ 'like', recipe['recipe_id'] }}">
+                    <span class="far fa-heart"></span>
+                  </button>
+                  <button name="recipe_id" id="recipe_id" type="submit" class="btn btn-default btn-lg" value="{{ 'dislike', recipe['recipe_id'] }}">
+                    <span class="far fa-thumbs-down"></span>
+                  </button>
+                  {% endif %}
               {%endif%}
             </form>
           </div>
