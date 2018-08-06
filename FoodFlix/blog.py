@@ -78,31 +78,43 @@ def profile():
 @bp.route('/', methods=('GET','POST'))
 def browse():
     db = get_db()
+
     liked = get_liked( session.get('user_id') )
     disliked = get_disliked( session.get('user_id') )
     restrictions = get_restrictions( session.get('user_id') )
+
     ingredients = []
+
     if request.method == 'POST':
         try:
-            req = request.form['recipe_id']
-            vote = re.findall('[a-z]+', req)[0]
-            recipe_id = re.findall('[0-9]+', req)[0]
+            respose = request.form['recipe_id']
+            # Parse out the type of button pressed (like or dislike)
+            vote = re.search('[a-z]+', respose).group()
+
+            # Parse out the recipe id from the response
+            recipe_id = re.search('[0-9]+', respose).group()
 
             if vote == 'like':
-                if str(recipe_id) in liked:
+                # Unlike if you click the button and it's already liked
+                if recipe_id in liked:
                     liked.remove(recipe_id)
+                # Like the recipe
                 else:
                     liked.append(recipe_id)
 
-                    if str(recipe_id) in disliked:
+                    # Un-dislike if it is disliked
+                    if recipe_id in disliked:
                         disliked.remove(recipe_id)
             else:
-                if str(recipe_id) in disliked:
+                # Un-dislike if you click the button and it's already disliked
+                if recipe_id in disliked:
                     disliked.remove(recipe_id)
+                # Dislike the recipe
                 else:
                     disliked.append(recipe_id)
 
-                    if str(recipe_id) in liked:
+                    # Unlike if it is liked
+                    if recipe_id in liked:
                         liked.remove(recipe_id)
 
             db.execute(
@@ -117,10 +129,13 @@ def browse():
             )
             db.commit()
             return redirect(url_for('blog.browse',_anchor=recipe_id))
+
         except BadRequestKeyError:
             print('No recipe_id key')
+
         try:
             ingredients = request.form['ingredients'].split(' ')
+
         except BadRequestKeyError:
             print('No Ingredients key')
 
@@ -131,9 +146,12 @@ def browse():
 @bp.route('/favs', methods=('GET','POST'))
 def favs():
     db = get_db()
+
     liked = get_liked( session.get('user_id') )
     restrictions = get_restrictions( session.get('user_id') )
+
     ingredients = []
+    
     if request.method == 'POST':
         try:
             recipe_id = request.form['recipe_id']
