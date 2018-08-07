@@ -28,11 +28,21 @@ class FoodFlixEngine(object):
                            header=0)
         data.set_index('recipe_id', inplace=True)
 
+        print('data: ', data.shape)
+
         # Drop recipes that contain keywords from the dietary restrictions
-        data = data[~data['ingredients'].str.contains('|'.join(restrictions))]
+        if restrictions:
+            data = (data[~data['ingredients'].str
+                                            .contains('|'.join(restrictions))])
 
         # Put ingredients in a list to be passed to TF-IDF
         ingredients = list(data['ingredients'])
+
+
+
+        print('restrictions: ', len(restrictions))
+        print('clean_ingredients: ', len(ingredients))
+
 
         # Build the TF-IDF Model using 1, 2, and 3-grams on words
         vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3),

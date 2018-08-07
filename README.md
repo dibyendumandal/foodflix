@@ -21,3 +21,8 @@ Deploy on Heroku:
 - `heroku create foodflix-api-heroku`
 - `git push heroku master`
 - Your App should be running on: https://foodflix-api-heroku.herokuapp.com/
+
+
+## Data Preparation
+To reduce compute time, similarity matrices are computer offline and loaded. To perform this preprocessing, use:
+`make data`

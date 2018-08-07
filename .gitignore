@@ -102,3 +102,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+FoodFlix/static/data/*.csv
+FoodFlix/static/data/*.npz
