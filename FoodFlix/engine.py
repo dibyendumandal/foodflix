@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import current_app, session
 import pandas as pd
 import numpy as np
 from scipy import sparse
@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Internal functions
-from FoodFlix.db import get_db
+from FoodFlix.db import get_db, get_liked, get_disliked
 
 class FoodFlixEngine(object):
 
@@ -38,7 +38,8 @@ class FoodFlixEngine(object):
 
         # Build the TF-IDF Model using 1, 2, and 3-grams on words
         vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3),
-                                     min_df=min_df, stop_words='english')
+                                     min_df=min_df, stop_words='english',
+                                     max_features=512)
 
         # Fit the TF-IDF model using the given data
         X = vectorizer.fit_transform(ingredients)
@@ -61,6 +62,11 @@ class FoodFlixEngine(object):
 
         recommendations.to_sql(name='recommendations',con=db,
                                if_exists='replace')
+
+        # Store TF-IDF features to database as well
+        tfidf_df = pd.DataFrame(X.toarray(), index=data.index)
+        tfidf_df.to_sql(name='tfidf', con=db, if_exists='replace')
+
         return
 
     def load_trained(self, restrictions):
@@ -106,21 +112,26 @@ class FoodFlixEngine(object):
                                if_exists='replace')
         return
 
-    def predict(self, liked, cals_per_day):
+    def predict(self, cals_per_day):
         """
         Generate predictions
-
-        liked : list
-            List containing recipe_id for each recipe that a user liked.
         """
+        # Divide the daily calories into five meals
+        cals_per_day /= 5 # 5 meals/day
 
         # Connect to the database to grab user information
         db = get_db()
 
+        # Get liked and disliked recipes
+        liked = get_liked(session.get('user_id'))
+        disliked = get_disliked(session.get('user_id'))
+
+        # Grab the TF-IDF features to compute scores
+        tfidf_query = 'SELECT * FROM tfidf;'
+        tfidf = pd.read_sql(sql=tfidf_query, con=db, index_col='recipe_id')
+
         # Create a container to hold recommended recipes
         recipes = []
-
-        cals_per_day /= 5 # 5 meals/day
 
         # Iterate over all of the recipes that a user has liked
         for recipe in liked:
