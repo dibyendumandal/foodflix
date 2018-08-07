@@ -29,6 +29,9 @@ def get_liked(user_id):
             'WHERE id = ?',
             (user_id,)
         ).fetchone()['liked'].split(',')
+
+        if liked == ['']:
+            liked = []
     except:
         liked = []
     return liked
@@ -42,6 +45,9 @@ def get_disliked(user_id):
             'WHERE id = ?',
             (user_id,)
         ).fetchone()['disliked'].split(',')
+
+        if disliked == ['']:
+            disliked = []
     except:
         disliked = []
     return disliked
