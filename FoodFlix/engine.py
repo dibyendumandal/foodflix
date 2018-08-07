@@ -44,24 +44,8 @@ class FoodFlixEngine(object):
         # Fit the TF-IDF model using the given data
         X = vectorizer.fit_transform(ingredients)
 
-        # Calculate the similarity
-        similarity = cosine_similarity(X)
-
-        # Create a DataFrame to hold the recommendations then pass to SQL
-        recommendations = pd.DataFrame(index=data.index,
-                                       columns=np.arange(n_closest))
-
-        # Get the most similar values
-        for idx in range(recommendations.shape[0]):
-            # Don't include the first one since it's the similarity with itself
-            similar_idx = similarity[idx].argsort()[-2:-(n_closest+2):-1]
-            recommendations.iloc[idx] = recommendations.index[similar_idx]
-
         # Store this to a SQL database
         db = get_db()
-
-        recommendations.to_sql(name='recommendations',con=db,
-                               if_exists='replace')
 
         # Store TF-IDF features to database as well
         tfidf_df = pd.DataFrame(X.toarray(), index=data.index)
@@ -107,7 +91,6 @@ class FoodFlixEngine(object):
         # Store this to a SQL database
         db = get_db()
 
-        print(recommendations.shape)
         recommendations.to_sql(name='recommendations',con=db,
                                if_exists='replace')
         return
@@ -160,9 +143,7 @@ class FoodFlixEngine(object):
 
         # Create a container to hold recommended recipes
         recipes = []
-
         n_recs = 0
-
         for rec in recommendations:
             recipe_query = db.execute(
                 'SELECT * '
@@ -189,6 +170,22 @@ class FoodFlixEngine(object):
         """
         Compute the Rocchio topic. This weights what the user likes and dislikes
         to generate recommendations.
+
+        Parameters
+        ==========
+        like : DataFrame
+            DataFrame containing TF-IDF features of liked recipes.
+        dislike : DataFrame
+            DataFrame containing TF-IDF features of disliked recipes.
+        w_like : float
+            Weighting for liked recipes in computing recommendations.
+        w_dislike : float
+            Weighting for disliked recipes in computing recommendations.
+
+        Returns
+        =======
+        rocchio_topic : array
+            Array containing recommended recipe.
         """
         n_features = like.shape[1]
 
