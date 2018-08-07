@@ -151,7 +151,7 @@ def favs():
     restrictions = get_restrictions( session.get('user_id') )
 
     ingredients = []
-    
+
     if request.method == 'POST':
         try:
             recipe_id = request.form['recipe_id']

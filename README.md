@@ -25,4 +25,4 @@ Deploy on Heroku:
 
 ## Data Preparation
 To reduce compute time, similarity matrices are computer offline and loaded. To perform this preprocessing, use:
-`make data`
+```make data```

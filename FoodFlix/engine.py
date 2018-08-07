@@ -1,6 +1,7 @@
 from flask import current_app
 import pandas as pd
 import numpy as np
+from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -12,7 +13,6 @@ class FoodFlixEngine(object):
     def train(self, restrictions, min_df=10, n_closest=3):
         """
         Fit the engine model to the given data
-
         Parameters
         ==========
         restrictions : list
@@ -24,11 +24,9 @@ class FoodFlixEngine(object):
         """
 
         # Read in cleaned data from CSV
-        data = pd.read_csv('FoodFlix/static/clean_ingredients.csv',
+        data = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv',
                            header=0)
         data.set_index('recipe_id', inplace=True)
-
-        print('data: ', data.shape)
 
         # Drop recipes that contain keywords from the dietary restrictions
         if restrictions:
@@ -37,12 +35,6 @@ class FoodFlixEngine(object):
 
         # Put ingredients in a list to be passed to TF-IDF
         ingredients = list(data['ingredients'])
-
-
-
-        print('restrictions: ', len(restrictions))
-        print('clean_ingredients: ', len(ingredients))
-
 
         # Build the TF-IDF Model using 1, 2, and 3-grams on words
         vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3),
@@ -67,7 +59,49 @@ class FoodFlixEngine(object):
         # Store this to a SQL database
         db = get_db()
 
-        # TODO kjb: maybe do this without replacement...
+        recommendations.to_sql(name='recommendations',con=db,
+                               if_exists='replace')
+        return
+
+    def load_trained(self, restrictions):
+        """
+        Load a previously fit model.
+
+        Parameters
+        ==========
+        restrictions : list
+            List containing strings of dietary restrictions.
+        """
+
+        # Read in cleaned data from CSV
+        data = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv',
+                           header=0)
+        data.set_index('recipe_id', inplace=True)
+
+        # Load in the preprocessed similarity data
+        sim = (sparse.load_npz('FoodFlix/static/data/similarities.npz')
+                     .toarray())
+
+        # Give recipes containing restrictions a similarity of -1
+        if restrictions:
+            mask = data['ingredients'].str.contains('|'.join(restrictions))
+            sim[mask] = -1
+            sim[:, mask] = -1
+
+        # Create a DataFrame to hold the recommendations then pass to SQL
+        recommendations = pd.DataFrame(index=data.index,
+                                       columns=np.arange(n_closest))
+
+        # Get the most similar values
+        for idx in range(recommendations.shape[0]):
+            # Don't include the first one since it's the similarity with itself
+            similar_idx = sim[idx].argsort()[-2:-(n_closest+2):-1]
+            recommendations.iloc[idx] = recommendations.index[similar_idx]
+
+        # Store this to a SQL database
+        db = get_db()
+
+        print(recommendations.shape)
         recommendations.to_sql(name='recommendations',con=db,
                                if_exists='replace')
         return
