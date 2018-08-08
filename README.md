@@ -8,6 +8,7 @@ Install:
 - Create virtual environment: `conda env create -n foodflix -f environment.yml`
 - `source activate foodflix`
 - `source env.sh`
+- Preprocess data: `make data`
 
 Run development version locally:
 - Set `FLASK_ENV=development` in env.sh

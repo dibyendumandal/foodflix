@@ -151,7 +151,7 @@ def favs():
     restrictions = get_restrictions( session.get('user_id') )
 
     ingredients = []
-    
+
     if request.method == 'POST':
         try:
             recipe_id = request.form['recipe_id']
@@ -217,6 +217,6 @@ def recommender():
     engine.train(restrictions=restrictions)
 
     # Pull some recipe recommendations
-    recipes = engine.predict(liked=liked, cals_per_day=user_query['cals_per_day'] )
+    recipes = engine.predict(cals_per_day=user_query['cals_per_day'])
 
     return render_template("browse.html",recipes=recipes)
