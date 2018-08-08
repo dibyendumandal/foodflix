@@ -8,6 +8,7 @@ Install:
 - Create virtual environment: `conda env create -n foodflix -f environment.yml`
 - `source activate foodflix`
 - `source env.sh`
+- Preprocess data: `make data`
 
 Run development version locally:
 - Set `FLASK_ENV=development` in env.sh
@@ -21,8 +22,3 @@ Deploy on Heroku:
 - `heroku create foodflix-api-heroku`
 - `git push heroku master`
 - Your App should be running on: https://foodflix-api-heroku.herokuapp.com/
-
-
-## Data Preparation
-To reduce compute time, similarity matrices are computer offline and loaded. To perform this preprocessing, use:
-```make data```

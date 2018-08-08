@@ -53,48 +53,6 @@ class FoodFlixEngine(object):
 
         return
 
-    def load_trained(self, restrictions):
-        """
-        Load a previously fit model.
-
-        Parameters
-        ==========
-        restrictions : list
-            List containing strings of dietary restrictions.
-        """
-
-        # Read in cleaned data from CSV
-        data = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv',
-                           header=0)
-        data.set_index('recipe_id', inplace=True)
-
-        # Load in the preprocessed similarity data
-        sim = (sparse.load_npz('FoodFlix/static/data/similarities.npz')
-                     .toarray())
-
-        # Give recipes containing restrictions a similarity of -1
-        if restrictions:
-            mask = data['ingredients'].str.contains('|'.join(restrictions))
-            sim[mask] = -1
-            sim[:, mask] = -1
-
-        # Create a DataFrame to hold the recommendations then pass to SQL
-        recommendations = pd.DataFrame(index=data.index,
-                                       columns=np.arange(n_closest))
-
-        # Get the most similar values
-        for idx in range(recommendations.shape[0]):
-            # Don't include the first one since it's the similarity with itself
-            similar_idx = sim[idx].argsort()[-2:-(n_closest+2):-1]
-            recommendations.iloc[idx] = recommendations.index[similar_idx]
-
-        # Store this to a SQL database
-        db = get_db()
-
-        recommendations.to_sql(name='recommendations',con=db,
-                               if_exists='replace')
-        return
-
     def predict(self, cals_per_day, w_like=1.5, w_dislike=0.3, n_closest=3):
         """
         Generate predictions

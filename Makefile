@@ -25,6 +25,10 @@ NOTEBOOKDIR=notebooks/
 ## data		: Preprocess data
 data : 00.0-kjb-Data_Preprocessing-nb
 
+## clean 	: Remove intermediate files
+clean :
+	rm FoodFlix/static/data/*.csv
+
 ## uninstall	: Uninstall the conda environment
 uninstall :
 	conda env remove -n $(ENV) -y
@@ -32,4 +36,4 @@ uninstall :
 help : Makefile
 	@sed -n 's/^##//p' $<
 
-.PHONY : env data uninstall help
+.PHONY : env data clean uninstall help
