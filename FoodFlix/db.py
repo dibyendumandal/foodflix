@@ -75,7 +75,7 @@ def get_recipes(ingredients,restrictions,user_id):
             recipes_query += 'AND recipe_id IN (%s) '%liked_str
         except:
             print('No user id')
-    recipes_query += 'ORDER BY calorie_count ASC, overall_rating DESC, review_count DESC '
+    recipes_query += 'ORDER BY calorie_count ASC, CAST(overall_rating AS float) * CAST(review_count AS float) DESC '
     try:
         recipes = db.execute(recipes_query).fetchall()
         return recipes

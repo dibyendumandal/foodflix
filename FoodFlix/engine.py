@@ -113,11 +113,11 @@ class FoodFlixEngine(object):
             # Only recommend things that you don't already like
             if recipe_query['recipe_id'] not in liked:
 
-                # Recommend only recipes around your cal/week goal
-                cals = int(recipe_query['calorie_count'].replace('cals',''))
-                if cals > cals_per_day * 0.8 and cals < cals_per_day * 1.2:
-                    recipes.append(recipe_query)
-                    n_recs+=1
+                # # Recommend only recipes around your cal/week goal
+                # cals = int(recipe_query['calorie_count'].replace('cals',''))
+                # if cals > cals_per_day * 0.8 and cals < cals_per_day * 1.2:
+                recipes.append(recipe_query)
+                n_recs+=1
 
             if n_recs >= n_closest:
                 break
