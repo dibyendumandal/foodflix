@@ -60,7 +60,7 @@
             </h4>
             <p class="card-text">
               <ul>
-                {% for ingr in recipe['ingredients_raw'].split("',")%}
+                {% for ingr in recipe['ingredients'].split("',")%}
                 <li>{{ingr.replace("'","").replace("[","").replace("]","")}}</li>
                 {% endfor %}
               </ul>
@@ -108,10 +108,10 @@
   {% endif %}
   <a class="btn btn-primary" href="{{recipe_num+10}}" role="button">Next</a>
   {% endif %}
-  
+
   <br><br>
   <br><br>
-  
+
 </div>
 {% endif %}
 {% endblock %}

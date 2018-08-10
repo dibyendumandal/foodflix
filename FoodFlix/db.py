@@ -105,7 +105,7 @@ def init_db():
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
     try:
-        recipes = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv')
+        recipes = pd.read_csv('FoodFlix/static/data/recipes_all_data.csv')
         recipes.to_sql(name='recipes',con=db)
     except:
         print('Table recipes already exists.')

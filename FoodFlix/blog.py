@@ -81,7 +81,7 @@ def browse(recipe_num=0):
     recipe_num = int(recipe_num)
     if recipe_num < 0:
         recipe_num = 0
-    
+
     db = get_db()
 
     liked = get_liked( session.get('user_id') )
@@ -139,7 +139,7 @@ def browse(recipe_num=0):
             print('No recipe_id key')
 
         try:
-            ingredients = request.form['ingredients_raw'].split(' ')
+            ingredients = request.form['ingredients'].split(' ')
 
         except BadRequestKeyError:
             print('No Ingredients key')
@@ -177,7 +177,7 @@ def favs():
         except BadRequestKeyError:
             print('No recipe_id key')
         try:
-            ingredients = request.form['ingredients_raw'].split(' ')
+            ingredients = request.form['ingredients'].split(' ')
         except BadRequestKeyError:
             print('No Ingredients key')
 
