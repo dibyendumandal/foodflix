@@ -269,4 +269,39 @@ def recommender():
     # Pull some recipe recommendations
     recipes = engine.predict(cals_per_day=user_query['cals_per_day'])
 
+    liked = get_liked( session.get('user_id') )
+    disliked = get_disliked( session.get('user_id') )
+
+    if request.method == 'POST':
+        try:
+            respose = request.form['recipe_id']
+            # Parse out the type of button pressed (like or dislike)
+            vote = re.search('[a-z]+', respose).group()
+
+            # Parse out the recipe id from the response
+            recipe_id = re.search('[0-9]+', respose).group()
+
+            if vote == 'like':
+                # Like the recipe
+                liked.append(recipe_id)
+            else:
+                # Dislike the recipe
+                disliked.append(recipe_id)
+
+            db.execute(
+                'UPDATE user '
+                'SET liked=?',
+                (','.join(liked),)
+            )
+            db.execute(
+                'UPDATE user '
+                'SET disliked=?',
+                (','.join(disliked),)
+            )
+            db.commit()
+            return redirect(url_for('blog.recommender'))
+
+        except BadRequestKeyError:
+            print('No recipe_id key')
+
     return render_template("browse.html",recipes=recipes)
