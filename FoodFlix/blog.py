@@ -76,7 +76,12 @@ def profile():
 
 
 @bp.route('/', methods=('GET','POST'))
-def browse():
+@bp.route('/<recipe_num>', methods=('GET','POST'))
+def browse(recipe_num=0):
+    recipe_num = int(recipe_num)
+    if recipe_num < 0:
+        recipe_num = 0
+    
     db = get_db()
 
     liked = get_liked( session.get('user_id') )
@@ -134,14 +139,17 @@ def browse():
             print('No recipe_id key')
 
         try:
-            ingredients = request.form['ingredients'].split(' ')
+            ingredients = request.form['ingredients_raw'].split(' ')
 
         except BadRequestKeyError:
             print('No Ingredients key')
 
     recipes = get_recipes(ingredients,restrictions,'')
+    recipes = recipes[recipe_num:recipe_num+10]
     return render_template('browse.html', recipes=recipes, liked=liked,
-        disliked=disliked, keywords=ingredients, restrictions=restrictions)
+                           disliked=disliked, keywords=ingredients, restrictions=restrictions,
+                           recipe_num=recipe_num)
+
 
 @bp.route('/favs', methods=('GET','POST'))
 def favs():
@@ -169,12 +177,14 @@ def favs():
         except BadRequestKeyError:
             print('No recipe_id key')
         try:
-            ingredients = request.form['ingredients'].split(' ')
+            ingredients = request.form['ingredients_raw'].split(' ')
         except BadRequestKeyError:
             print('No Ingredients key')
 
     recipes = get_recipes(ingredients,restrictions,session.get('user_id'))
-    return render_template('browse.html', recipes=recipes, liked=liked, keywords=ingredients, restrictions=restrictions)
+    return render_template('browse.html', recipes=recipes, liked=liked,
+                           keywords=ingredients, restrictions=restrictions,
+                           recipe_num=0)
 
 
 @bp.route('/recommender', methods=('GET', 'POST'))

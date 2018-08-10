@@ -49,7 +49,7 @@
         <div class="card">
           <div class="card-body">
             <h3><a class="card-title" href="{{ recipe['recipe_url'] }}" target="_blank">{{ recipe['recipe_name'].replace('-', ' ').title() }}</a></h3>
-            <h6 class="card-subtitle mb-2 text-muted">{{ recipe['overall_rating']|round(1)}} stars ({{ recipe['review_count'] }})</h6>
+            <h6 class="card-subtitle mb-2 text-muted">{{ recipe['overall_rating']|round(1)}} stars ({{ recipe['review_count'] }} reviews)</h6>
             <h4 class="card-subtitle">
               {% if recipe['cook_time'] is not none %}
               <span class="far fa-clock">  {{ recipe['cook_time'] }}</span>
@@ -60,7 +60,7 @@
             </h4>
             <p class="card-text">
               <ul>
-                {% for ingr in recipe['ingredients'].split("',")%}
+                {% for ingr in recipe['ingredients_raw'].split("',")%}
                 <li>{{ingr.replace("'","").replace("[","").replace("]","")}}</li>
                 {% endfor %}
               </ul>
@@ -102,6 +102,16 @@
   </table>
   {% endif %}
 
+  {% if request.path != "/favs" and request.path != "/recommender"%}
+  {% if recipe_num > 0%}
+  <a class="btn btn-primary" href="{{recipe_num-10}}" role="button">Previous</a>
+  {% endif %}
+  <a class="btn btn-primary" href="{{recipe_num+10}}" role="button">Next</a>
+  {% endif %}
+  
+  <br><br>
+  <br><br>
+  
 </div>
 {% endif %}
 {% endblock %}

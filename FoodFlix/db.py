@@ -58,7 +58,7 @@ def get_recipes(ingredients,restrictions,user_id):
     recipes_query = '''
     SELECT *
     FROM recipes
-    WHERE review_count > "1 reviews"
+    WHERE review_count > 1
     '''
     query_like = "AND ingredients LIKE '%%%s%%' "
     recipes_query += ''.join([query_like%ingr for ingr in ingredients])
@@ -75,7 +75,7 @@ def get_recipes(ingredients,restrictions,user_id):
             recipes_query += 'AND recipe_id IN (%s) '%liked_str
         except:
             print('No user id')
-    recipes_query += 'ORDER BY overall_rating DESC '
+    recipes_query += 'ORDER BY calorie_count ASC, overall_rating DESC, review_count DESC '
     try:
         recipes = db.execute(recipes_query).fetchall()
         return recipes
@@ -105,7 +105,7 @@ def init_db():
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
     try:
-        recipes = pd.read_csv('FoodFlix/static/data/recipes_all_data.csv')
+        recipes = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv')
         recipes.to_sql(name='recipes',con=db)
     except:
         print('Table recipes already exists.')

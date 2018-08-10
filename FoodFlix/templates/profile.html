@@ -38,7 +38,7 @@
             <label for="id_age" class="control-label col-md-4  requiredField">Age<span class="asteriskField">*</span> </label>
             <div class="controls col-md-4 ">
               <input class="input-md textinput textInput form-control"
-                     id="id_age" name="age" placeholder="Your Age in pounds"
+                     id="id_age" name="age" placeholder="Years Old"
                      style="margin-bottom: 10px" type="number"
                      {% if user['age'] is not none %} value="{{'%i'| format(user['age']|int)}}" {%endif%}required>
             </div>
@@ -60,7 +60,7 @@
             <label for="id_weight" class="control-label col-md-4  requiredField">Weight<span class="asteriskField">*</span> </label>
             <div class="controls col-md-4 ">
               <input class="input-md textinput textInput form-control"
-                     id="id_weight" name="weight" placeholder="Your Weight in pounds"
+                     id="id_weight" name="weight" placeholder="Pounds"
                      style="margin-bottom: 10px" type="number"
                      {% if user['weight'] is not none %} value="{{user['weight']}}" {%endif%}required>
             </div>
@@ -136,7 +136,7 @@
             <label for="id_restrictions" class="control-label col-md-4  requiredField">Food Restrictions<span class="asteriskField"></span> </label>
             <div class="controls col-md-8 ">
               <input class="input-md textinput textInput form-control"
-                     id="id_restrictions" name="restrictions" placeholder="Your Food Restrictions"
+                     id="id_restrictions" name="restrictions" placeholder="chicken walnuts ..."
                      style="margin-bottom: 10px" type="text" value="{{user['restrictions']}}">
             </div>
           </div>
