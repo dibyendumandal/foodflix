@@ -133,7 +133,8 @@ def browse(recipe_num=0):
                 (','.join(disliked),)
             )
             db.commit()
-            return redirect(url_for('blog.browse',_anchor=recipe_id))
+            return redirect(url_for('blog.browse',_anchor=recipe_id,
+                                    recipe_num=recipe_num))
 
         except BadRequestKeyError:
             print('No recipe_id key')
