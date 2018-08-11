@@ -27,11 +27,11 @@
                 <input type="radio" name="gender"
                        id="id_gender_1" value="M"
                        style="margin-bottom: 10px"
-                       {% if user['gender'] == 'M' %} checked {% endif %}>Male</label>
+                       {% if user['gender'] == 'M' %} checked {% endif %} required>Male</label>
               <label class="radio-inline">
                 <input type="radio" name="gender"
                        id="id_gender_2" value="F"
-                       {% if user['gender'] == 'F' %} checked {% endif %}>Female</label>
+                       {% if user['gender'] == 'F' %} checked {% endif %} required>Female</label>
             </div>
           </div>
           <div id="age" class="form-group required">
