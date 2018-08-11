@@ -78,8 +78,13 @@ def profile():
 @bp.route('/', methods=('GET','POST'))
 @bp.route('/<recipe_num>', methods=('GET','POST'))
 def browse(recipe_num=0):
-    recipe_num = int(recipe_num)
-    if recipe_num < 0:
+
+    print('**** recipe_num',recipe_num,' ******')
+    try:
+        recipe_num = int(recipe_num)
+        if recipe_num < 0:
+            recipe_num = 0
+    except ValueError:
         recipe_num = 0
 
     db = get_db()
@@ -147,6 +152,10 @@ def browse(recipe_num=0):
 
     recipes = get_recipes(ingredients,restrictions,'')
     recipes = recipes[recipe_num:recipe_num+10]
+
+    for recipe in recipes:
+        print('recipe->',recipe)
+
     return render_template('browse.html', recipes=recipes, liked=liked,
                            disliked=disliked, keywords=ingredients, restrictions=restrictions,
                            recipe_num=recipe_num)

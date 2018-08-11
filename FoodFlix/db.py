@@ -1,6 +1,7 @@
 import sqlite3
 import pandas as pd
 import click
+import os
 from flask import current_app, g
 from flask.cli import with_appcontext
 
@@ -77,9 +78,11 @@ def get_recipes(ingredients,restrictions,user_id):
             print('No user id')
     recipes_query += 'ORDER BY calorie_count ASC, CAST(overall_rating AS float) * CAST(review_count AS float) DESC '
     try:
+        print('recipes_query',recipes_query)
         recipes = db.execute(recipes_query).fetchall()
         return recipes
-    except:
+    except Exception as err:
+        print('recipes_query failed due to exception:', type(err),err)
         return []
 
 
@@ -104,11 +107,12 @@ def init_db():
     db = get_db()
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
+    os.system('make data')
     try:
-        recipes = pd.read_csv('FoodFlix/static/data/recipes_all_data.csv')
+        recipes = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv')
         recipes.to_sql(name='recipes',con=db)
-    except:
-        print('Table recipes already exists.')
+    except Exception as err:
+        print('Error Init DB:', type(err), err)
 
 @click.command('init-db')
 @with_appcontext
