@@ -60,7 +60,7 @@
             </h4>
             <p class="card-text">
               <ul>
-                {% for ingr in recipe['ingredients_raw'].split("',")%}
+                {% for ingr in recipe['ingredients'].split("',")%}
                 <li>{{ingr.replace("'","").replace("[","").replace("]","")}}</li>
                 {% endfor %}
               </ul>

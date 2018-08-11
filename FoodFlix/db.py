@@ -109,7 +109,7 @@ def init_db():
         db.executescript(f.read().decode('utf8'))
     os.system('make data')
     try:
-        recipes = pd.read_csv('FoodFlix/static/data/clean_ingredients.csv')
+        recipes = pd.read_csv('FoodFlix/static/data/recipes_all_data.csv')
         recipes.to_sql(name='recipes',con=db)
     except Exception as err:
         print('Error Init DB:', type(err), err)
