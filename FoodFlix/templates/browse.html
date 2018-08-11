@@ -22,8 +22,8 @@
     {% for restriction in restrictions %}
     <button class="btn btn-danger btn-sm">{{restriction}}</button>
     {% endfor %}
-    {% for keyword in keywords %}
-    <button class="btn btn-info btn-sm">{{keyword}}</button>
+    {% for ingr in ingredients %}
+    <button class="btn btn-info btn-sm">{{ingr}}</button>
     {% endfor %}
   </h1>
 </div>
@@ -104,9 +104,11 @@
 
   {% if request.path != "/favs" and request.path != "/recommender"%}
   {% if recipe_num > 0%}
-  <a class="btn btn-primary" href="{{recipe_num-10}}" role="button">Previous</a>
+  <a class="btn btn-primary" role="button" id="prev_button">Previous</a>
   {% endif %}
-  <a class="btn btn-primary" href="{{recipe_num+10}}" role="button">Next</a>
+  {% if recipes|length >= 10 %}
+  <a class="btn btn-primary" role="button" id="next_button">Next</a>
+  {% endif %}
   {% endif %}
 
   <br><br>
@@ -114,4 +116,11 @@
 
 </div>
 {% endif %}
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+<script>
+  next_prev_recipes({{recipe_num}},"{{ingr_str}}");
+</script>
+
+
 {% endblock %}

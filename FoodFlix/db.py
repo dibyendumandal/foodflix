@@ -78,7 +78,6 @@ def get_recipes(ingredients,restrictions,user_id):
             print('No user id')
     recipes_query += 'ORDER BY calorie_count ASC, CAST(overall_rating AS float) * CAST(review_count AS float) DESC '
     try:
-        print('recipes_query',recipes_query)
         recipes = db.execute(recipes_query).fetchall()
         return recipes
     except Exception as err:

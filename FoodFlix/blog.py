@@ -76,25 +76,35 @@ def profile():
 
 
 @bp.route('/', methods=('GET','POST'))
-@bp.route('/<recipe_num>', methods=('GET','POST'))
-def browse(recipe_num=0):
+def browse():
 
-    print('**** recipe_num',recipe_num,' ******')
+    ### Get query arguments:
+    # Recipe number:
     try:
-        recipe_num = int(recipe_num)
+        recipe_num = int(request.args['recipe_num'])
         if recipe_num < 0:
             recipe_num = 0
-    except ValueError:
+    except (ValueError, KeyError):
         recipe_num = 0
 
+    # Ingredients:
+    ingredients = []
+    ingr_str = ''
+    try:
+        ingredients = request.args['ingredients'].split(' ') # get ingr as array
+        ingredients = [ingr for ingr in ingredients if ingr!='' and ingr!=','] #remove empty and commas
+        ingr_str = request.args['ingredients']
+    except BadRequestKeyError:
+        print('No Ingredients key')
+
+    ### Get link to DB
     db = get_db()
 
+    ### Get user info
     liked = get_liked( session.get('user_id') )
     disliked = get_disliked( session.get('user_id') )
     restrictions = get_restrictions( session.get('user_id') )
-
-    ingredients = []
-
+    
     if request.method == 'POST':
         try:
             respose = request.form['recipe_id']
@@ -139,25 +149,19 @@ def browse(recipe_num=0):
             )
             db.commit()
             return redirect(url_for('blog.browse',_anchor=recipe_id,
-                                    recipe_num=recipe_num))
+                                    recipe_num=recipe_num,ingredients=ingr_str))
 
         except BadRequestKeyError:
             print('No recipe_id key')
 
-        try:
-            ingredients = request.form['ingredients'].split(' ')
 
-        except BadRequestKeyError:
-            print('No Ingredients key')
-
+    ### Finally get the recipes from DB
     recipes = get_recipes(ingredients,restrictions,'')
     recipes = recipes[recipe_num:recipe_num+10]
 
-    for recipe in recipes:
-        print('recipe->',recipe)
-
     return render_template('browse.html', recipes=recipes, liked=liked,
-                           disliked=disliked, keywords=ingredients, restrictions=restrictions,
+                           disliked=disliked, ingredients=ingredients,
+                           ingr_str=ingr_str, restrictions=restrictions,
                            recipe_num=recipe_num)
 
 
@@ -218,17 +222,6 @@ def favs():
 
         except BadRequestKeyError:
             print('No recipe_id key')
-
-        try:
-            ingredients = request.form['ingredients'].split(' ')
-
-        except BadRequestKeyError:
-            print('No Ingredients key')
-
-        try:
-            ingredients = request.form['ingredients'].split(' ')
-        except BadRequestKeyError:
-            print('No Ingredients key')
 
     recipes = get_recipes(ingredients,restrictions,session.get('user_id'))
     return render_template('browse.html', recipes=recipes, liked=liked,

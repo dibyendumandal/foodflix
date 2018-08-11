@@ -8,10 +8,9 @@
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
-  <link rel="stylesheet" href="css/overlay.css">
 </head>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='mystyle.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mystyle.css') }}">
 
 <body>
 <!-- Navigation Bar -->
@@ -48,16 +47,13 @@
         {% endif %}
       </ul>
       {% if g.user %}
-      <form method="post" class="navbar-form navbar-right">
-        <div class="form-group">
-          <input name="ingredients" id="ingredients"
-                 type="text" class="form-control" placeholder="Ingredients"
-                 value="{{request.form['ingredients']}}"></input>
-        </div>
-        <button type="submit" class="btn btn-default">
+      <div method="post" class="navbar-form navbar-right">
+        <input name="ingredients" id="ingredients"
+               type="text" placeholder="Ingredients"></input>
+        <button class="btn btn-default" id="search_button">
           <span class="fas fa-search"></span>
         </button>
-      </form>
+      </div>
       {% endif %}
     </div>
 
@@ -76,5 +72,10 @@
 <div class="alert alert-{{category}} text-center" role="alert">{{ message }}</div>
 {% endfor %}
 {% block content %}{% endblock %}
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+<script>
+  filter_ingredients();
+</script>
 
 </body>
