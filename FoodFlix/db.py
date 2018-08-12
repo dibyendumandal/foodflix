@@ -109,7 +109,7 @@ def init_db():
     os.system('make data')
     try:
         recipes = pd.read_csv('FoodFlix/static/data/recipes_all_data.csv')
-        recipes.to_sql(name='recipes',con=db)
+        recipes.to_sql(name='recipes',con=db, if_exists = 'replace')
     except Exception as err:
         print('Error Init DB:', type(err), err)
 
