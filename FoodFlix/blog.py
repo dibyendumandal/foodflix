@@ -104,7 +104,7 @@ def browse():
     liked = get_liked( session.get('user_id') )
     disliked = get_disliked( session.get('user_id') )
     restrictions = get_restrictions( session.get('user_id') )
-    
+
     if request.method == 'POST':
         try:
             respose = request.form['recipe_id']
@@ -267,6 +267,10 @@ def recommender():
     # Build the food recommender engine and train
     engine = FoodFlixEngine()
     engine.train(restrictions=restrictions)
+
+    # Using a different engine
+    # engine.train_to_vec(restrictions=restrictions, method='w2v')
+    # engine.train_to_vec(restrictions=restrictions, method='d2v')
 
     # Pull some recipe recommendations
     recipes = engine.predict(cals_per_day=user_query['cals_per_day'])

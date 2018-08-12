@@ -53,6 +53,42 @@ class FoodFlixEngine(object):
 
         return
 
+    def train_to_vec(self, restrictions, method):
+        """
+        Read in models generated from word2vec or doc2vec.
+
+        Parameters
+        ==========
+        restrictions : list
+            List containing strings of dietary restrictions.
+
+        method : str in {'doc2vec', 'word2vec'}
+        """
+        assert method in ['doc2vec', 'word2vec']
+
+        # Read in cleaned data from CSV
+        vec = pd.read_csv('FoodFlix/static/data/'
+                          'recipeid_ingredients_vector.csv',
+                           header=0)
+        vec.set_index('recipe_id', inplace=True)
+
+        # Drop recipes that contain keywords from the dietary restrictions
+        if restrictions:
+            vec = vec[~vec['ingredients'].str.contains('|'.join(restrictions))]
+
+
+        if method == 'doc2vec':
+            X = vec['d2v']
+        else:
+            X = vec['w2v']
+
+
+        # Store TF-IDF features to database as well
+        tfidf_df = pd.DataFrame(X)
+        tfidf_df.to_sql(name='tfidf', con=db, if_exists='replace')
+
+        return
+
     def predict(self, cals_per_day, w_like=1.5, w_dislike=0.3, n_closest=3):
         """
         Generate predictions
