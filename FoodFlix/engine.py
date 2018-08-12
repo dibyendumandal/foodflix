@@ -4,6 +4,8 @@ import numpy as np
 from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import random
+from FoodFlix.db import get_recipes
 
 # Internal functions
 from FoodFlix.db import get_db, get_liked, get_disliked
@@ -53,7 +55,7 @@ class FoodFlixEngine(object):
 
         return
 
-    def predict(self, cals_per_day, w_like=1.5, w_dislike=0.3, n_closest=3):
+    def predict(self, cals_per_day, w_like=1.5, w_dislike=0.3, n_closest=4, add_random=False):
         """
         Generate predictions
 
@@ -65,6 +67,10 @@ class FoodFlixEngine(object):
             Weighting for liked recipes in computing recommendations.
         w_dislike : float
             Weighting for disliked recipes in computing recommendations.
+        n_closest : int
+            Number of recommended recipes 
+        add_random : bool
+            Whether including a random suggestion for testing
         """
         # Divide the daily calories into five meals
         cals_per_day /= 5
@@ -113,14 +119,27 @@ class FoodFlixEngine(object):
             # Only recommend things that you don't already like
             if recipe_query['recipe_id'] not in liked:
 
+                recipe_dict = dict( recipe_query ) #convert to dict to allow addition of elements
+                recipe_dict['generator'] = 'Recommender TF-IDF'
                 # # Recommend only recipes around your cal/week goal
                 # cals = int(recipe_query['calorie_count'].replace('cals',''))
                 # if cals > cals_per_day * 0.8 and cals < cals_per_day * 1.2:
-                recipes.append(recipe_query)
+                recipes.append(recipe_dict)
                 n_recs+=1
 
             if n_recs >= n_closest:
                 break
+
+        # Include random suggestion if enabled
+        if add_random:
+            # Get all recipes from DB
+            all_recipes = get_recipes('','','')
+            recipe_rand = dict( random.choice(all_recipes) )
+            recipe_rand['generator'] = 'Random'
+            recipes.append( recipe_rand )
+
+        # Shuffle around
+        random.shuffle(recipes)
 
         return recipes
 

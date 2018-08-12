@@ -269,7 +269,8 @@ def recommender():
     engine.train(restrictions=restrictions)
 
     # Pull some recipe recommendations
-    recipes = engine.predict(cals_per_day=user_query['cals_per_day'])
+    recipes = engine.predict(cals_per_day=user_query['cals_per_day'],
+                             add_random=True)
 
     liked = get_liked( session.get('user_id') )
     disliked = get_disliked( session.get('user_id') )
@@ -306,4 +307,4 @@ def recommender():
         except BadRequestKeyError:
             print('No recipe_id key')
 
-    return render_template("browse.html",recipes=recipes)
+    return render_template("browse.html",recipes=recipes, recipe_num=0)

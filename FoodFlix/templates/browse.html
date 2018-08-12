@@ -122,5 +122,12 @@
   next_prev_recipes({{recipe_num}},"{{ingr_str}}");
 </script>
 
+{% if request.path == "/recommender" %}
+<script>
+  {% for recipe in recipes %}
+  console.log("{{recipe['recipe_name'].replace('-', ' ').title()}}: {{recipe['generator']}}");
+  {% endfor %}
+</script>
+{% endif %}
 
 {% endblock %}
