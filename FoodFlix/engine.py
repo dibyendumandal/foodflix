@@ -12,7 +12,8 @@ from FoodFlix.db import get_db, get_liked, get_disliked
 
 class FoodFlixEngine(object):
 
-    def train(self, restrictions, min_df=10, n_closest=3):
+    def train(self, restrictions, min_df=10, n_closest=3, method = 'word2vec'):
+        
         """
         Fit the engine model to the given data
         Parameters
@@ -46,11 +47,30 @@ class FoodFlixEngine(object):
         # Fit the TF-IDF model using the given data
         X = vectorizer.fit_transform(ingredients)
 
+        X = X.toarray()
+
+
+        
+        # word2vec and doc2vec
+        if method == 'doc2vec' or method == 'word2vec':
+
+            with open('FoodFlix/recipeid_ingredients_vector.csv','r') as fp:
+                docwordvec = pd.read_csv(fp)
+                docwordvec.set_index('recipe_id',inplace=True)
+            
+            if method == 'doc2vec':
+                X = np.array([ [float(w) for w in docwordvec.at[i, 'd2v'][1:-1].split()] for i in data.index])
+            if method == 'word2vec':
+                X = np.array([ [float(w) for w in docwordvec.at[i, 'w2v'][1:-1].split()] for i in data.index])
+        
+
         # Store this to a SQL database
         db = get_db()
 
         # Store TF-IDF features to database as well
-        tfidf_df = pd.DataFrame(X.toarray(), index=data.index)
+        #tfidf_df = pd.DataFrame(X.toarray(), index=data.index)
+
+        tfidf_df = pd.DataFrame(X, index=data.index)
         tfidf_df.to_sql(name='tfidf', con=db, if_exists='replace')
 
         return
