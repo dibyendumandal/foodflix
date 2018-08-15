@@ -270,7 +270,7 @@ def recommender():
 
     # Pull some recipe recommendations
     recipes = engine.predict(cals_per_day=user_query['cals_per_day'],
-                             add_random=True)
+                             add_random=False)
 
     liked = get_liked( session.get('user_id') )
     disliked = get_disliked( session.get('user_id') )
